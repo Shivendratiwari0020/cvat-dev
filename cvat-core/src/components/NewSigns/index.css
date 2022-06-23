@@ -1,0 +1,136 @@
+/* .code-box-demo {
+    text-align: center;
+  }
+  .ant-layout-header,
+  .ant-layout-footer {
+    color: rgb(46, 39, 39);
+    background: #f1f4f5;
+  }
+  [data-theme="dark"] .ant-layout-header {
+    background: #f8f8f8;
+  }
+  [data-theme="dark"] .ant-layout-footer {
+    background: #f8f8f8;
+  }
+  .ant-layout-footer {
+    line-height: 1.5;
+  }
+  .ant-layout-sider {
+    color: #fff;
+    line-height: 120px;
+    background: #f8f8f8;
+  }
+  [data-theme="dark"] .ant-layout-sider {
+    background: #f8f8f8;
+  }
+  .ant-layout-content {
+    min-height: 120px;
+    color: rgb(46, 44, 44);
+    line-height: 120px;
+    background: #f8f8f8;
+  }
+  [data-theme="dark"] .ant-layout-content {
+    background: #f8f8f8;
+  } */
+>.code-box-demo>.ant-layout+.ant-layout {
+  margin-top: 48px;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+div.ex3 {
+  background-color: rgb(222, 227, 228);
+  width: 950px;
+  height: 500px;
+  overflow: scroll;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+div.render {
+  background-color: rgb(255, 255, 255);
+  width: 100%;
+  height: 800px;
+  overflow: scroll;
+}
+
+img.signs {
+  width: 114px;
+  height: 114px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+div.flexdivs {
+  display: flex;
+  flex-direction: row;
+}
+
+div.description {
+  width: 340px;
+  height: 350px;
+  border-style: solid;
+  border-width: 2px;
+  ;
+  border-color: rgba(255, 255, 255, 0.871);
+  overflow: scroll;
+  padding: 10px;
+}
+
+div.additionattr {
+  width: 600px;
+  height: 350px;
+  border-style: solid;
+  border-width: 2px;
+  ;
+  border-color: rgba(255, 255, 255, 0.871);
+  overflow: scroll;
+}
+
+#wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+#wrapper1 {
+  flex-direction: column;
+  margin-left: 50px;
+  width: 200px;
+}
+
+.marginclass {
+  margin: 10px;
+}
+
+#div3 {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0px;
+  margin-top: 10px;
+}
+
+div.signimage {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  margin-bottom: 5px;
+}

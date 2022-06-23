@@ -1,0 +1,15 @@
+.list
+{
+background-color: grey;
+
+}
+
+.marginclass {
+    margin:10px;
+
+    }
+
+    *
+    {
+      box-sizing:border-box;
+    }

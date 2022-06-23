@@ -1,0 +1,7 @@
+#footerLayout{
+    display: flex !important;
+}
+
+.ant-modal-footer{
+    display: none;
+}
