@@ -86,6 +86,7 @@ from cvat.apps.iam.permissions import (CloudStoragePermission,
     CommentPermission, IssuePermission, JobPermission, ProjectPermission,
     TaskPermission, UserPermission)
 from cvat.apps.engine.conversion_coco_to_canvas import occ
+from cvat.apps.engine.validation_sr_rules import tool_validation
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 import collections
@@ -2123,7 +2124,7 @@ def zipdir(path, ziph):
     # ziph is zipfile handle
     for root, dirs, files in os.walk(path):
         for file in files:
-            if str(file).endswith("Labels.json"):
+            if str(file).endswith("Labels.json") or str(file).endswith("Labels.xlsx"):
                 ziph.write(os.path.join(root, file),
                        os.path.relpath(os.path.join(root, file),
                                        os.path.join(path, '..')))
@@ -2168,15 +2169,16 @@ def _export_annotations(db_instance, rq_id, request, format_name, action, callba
                     labelfile_input_path = dir_to_extract + "/annotations/instances_default.json"
                     h5_file_path = settings.BASE_DIR+"/data/data/"+str(db_instance.id)+"/raw/"
                     input_h5_file = h5_file_path
-                    # try:
+                    #try:
                     occ.output_conversion_objectlabel(labelfile_input_path, input_h5_file, task_name, login_name)
                     occ.output_conversion_scenelabel(labelfile_input_path, input_h5_file, task_name, login_name)
+                    tool_validation(input_h5_file+"SR_ObjectLabels.json")
                     os.chdir(input_h5_file)
                     with zipfile.ZipFile('hello.zip', 'w', zipfile.ZIP_DEFLATED) as zipf:
                         zipdir(input_h5_file, zipf)
-                    # except Exception as e:
-                        # print(e)
-                        # pass
+                    #except Exception as e:
+                     #   print(e)
+                     #   pass
                 # ENDING CONVERSION SCRIPT
 
                 if action == "download" and osp.exists(file_path):

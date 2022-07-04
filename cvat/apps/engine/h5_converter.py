@@ -3,7 +3,7 @@ import io
 import cv2
 import h5py
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 from multiprocessing import Pool
 import os
 a = time.time()
@@ -33,6 +33,7 @@ def converter_webm(filename):
         #    res = Pool(6).starmap(iw, new_obj)
             # print(res)
         all_img = [iw(i,j) for i,j in new_obj]
+        print(all_img)
         os.chdir(output_path)
         # time.sleep(500)
         #ffmpeg_output = "ffmpeg -framerate 10 -pattern_type glob -i '*.jpeg' -c:v libx264 -pix_fmt yuv420p "+ str(fn) +".mp4"
@@ -45,7 +46,15 @@ def converter_webm(filename):
 import time
 def iw(arr,obj):
     img = Image.open(io.BytesIO(arr))
-    img.save(str(obj)+".jpeg")
+    sharpened1 = img.filter(ImageFilter.SHARPEN);
+    sharpened2 = sharpened1.filter(ImageFilter.SHARPEN);
+    sharpened2.save(str(obj)+".jpeg")
+    # from wand.image import Image
+    # with Image(filename = str(obj)+".jpeg") as img:
+    #     img.sharpen(radius = 100, sigma = 50)
+    #     img.save(filename = str(obj)+".jpeg")
+
+    
     # return True
 
 print(time.time()-a)
