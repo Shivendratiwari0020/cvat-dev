@@ -1,6 +1,7 @@
 # %%
 import numpy as np
 import pandas as pd
+from collections import Counter
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 import timeit
@@ -8,7 +9,7 @@ import timeit
 start = timeit.default_timer()
 
 # %%
-
+#filename = "input_folder/2019.05.29_at_17.47.20_camera-mi_324.rrec_ObjectLabels.json"
 
 
 
@@ -49,20 +50,23 @@ def tool_validation(filename):
                                      "attributes.SR_CONTAMINATED","attributes.SR_PARTLY","attributes.SR_MAIN_ID","attributes.SR_INVISIBLE","attributes.SR_INVALID"]
     
     
-    for item in list_to_first_element_columns:
-        try:
+    #for item in list_to_first_element_columns:
+      #  df[item] = df[item].apply(lambda x: str(x).replace('[','').replace(']','').replace("'",''))
+    
+    try:
+        for item in list_to_first_element_columns:
             df[item] = df[item].apply(lambda x: str(x).replace('[','').replace(']','').replace("'",''))
-        except Exception as e:
-            print(e)
-    
-    
+    except Exception as e:
+        print(e)    
+        
     # %%
     # list(df.columns)
     
     # %%
     """
     # Rule 1
-    ## Filter Category Column and select “Signs” and validate the Sign class column whether any sign class containing “sup” is set. If yes, highlight the same as False
+    ## Filter Category Column and select “Signs” and validate the Sign class column whether any sign class
+    containing “sup” is set. If yes, highlight the same as False
     """
     
     # %%
@@ -183,31 +187,39 @@ def tool_validation(filename):
     # %%
     """
     # Rule 12
-    ## Accuracy validation- Height- If (Track ID in second row= Track id in first row, Height value in second row- Height in First row, “End”), highlight wherever the difference in value is less than or equal to -1 and give comment as check and End row as end
+    ## Accuracy validation- Height- 
+    If (Track ID in second row= Track id in first row, Height value in second row- Height in First row, “End”), 
+    highlight wherever the difference in value is less than or equal to -1 and give comment as check and 
+    End row as end
     """
     
     
     # %%
+
+    df["rule_12"] = "NA"
     
-    
-    
-    
-    
-    
-    
+    df=df.sort_values('Trackid')
+    df['rule_12'] = df.height.diff(-1)    
+   # df['rule_12'] = (~df.duplicated(subset=['Trackid'], keep='last')).astype(int)
+    df['rule_12'] = np.where(df.duplicated(subset=['Trackid'], keep='last'),  df['rule_12'],'End')
+
     
     print("Executed Rule 12")
     # %%
     """
     # Rule 13
-    ## Accuracy validation- Width- If (Track ID in second row= Track id in first row, Width value in second row- Width in First row, “End”), highlight wherever the difference in value is less than or equal to -1 and give comment as check and End row as end
+    ## Accuracy validation- Width- If (Track ID in second row= Track id in first row, Width value in second 
+    row- Width in First row, “End”), highlight wherever the difference in value is less than or equal to -1 
+    and give comment as check and End row as end
     """
     
     # %%
     
+    df["rule_13"] = "NA"
     
-    
-    
+    df['rule_13'] = df.width.diff(-1)    
+   # df['rule_12'] = (~df.duplicated(subset=['Trackid'], keep='last')).astype(int)
+    df['rule_13'] = np.where(df.duplicated(subset=['Trackid'], keep='last'),  df['rule_13'],'End')
     
     print("Executed Rule 13")
     # %%
@@ -217,15 +229,17 @@ def tool_validation(filename):
     """
     
     # %%
-    condition = ((df['attributes.SR_INVISIBLE'] == 'Invisible_Start') & (df['attributes.SR_PARTLY'] == 'false'))
-    df['flag_14'] = np.where(condition,'true','check')
-    condition = ((df['attributes.SR_INVISIBLE'] == 'Invisible_Stop') & (df['attributes.SR_PARTLY'] == 'false'))
-    df['flag_14'] = np.where(condition,'true','check')
-    
-    
-    condition = ((df['attributes.SR_SIGN_CLASS'] == 'Info_Direction') & (df['attributes.SR_SIGN_CLASS'] == 'Info_Direction_Yellow'))
-    df['flag_14'] = np.where(condition,'true','check')
-    
+    if 'attributes.SR_INVISIBLE' in df.columns:
+        condition = ((df['attributes.SR_INVISIBLE'] == 'Invisible_Start') & (df['attributes.SR_PARTLY'] == 'false'))
+        df['flag_14'] = np.where(condition,'true','check')
+        condition = ((df['attributes.SR_INVISIBLE'] == 'Invisible_Stop') & (df['attributes.SR_PARTLY'] == 'false'))
+        df['flag_14'] = np.where(condition,'true','check')
+        
+        
+        condition = ((df['attributes.SR_SIGN_CLASS'] == 'Info_Direction') & (df['attributes.SR_SIGN_CLASS'] == 'Info_Direction_Yellow'))
+        df['flag_14'] = np.where(condition,'true','check')
+    else:
+        df['flag_14']="NA"
     
     print("Executed Rule 14")
     # %%
@@ -255,19 +269,26 @@ def tool_validation(filename):
     """
     
     # %%
-    df["Rule16_flag"]=""
-    for row in range(len(df)):
-        if df['attributes.SR_SIGN_CLASS'].loc[row]=='Info_Direction' or df['attributes.SR_SIGN_CLASS'].loc[row]=='Info_Direction_Yellow' :
-            if df['category'].loc[row]=='Supplementary Sign': 
-                if str(df['Trackid'])!= df['attributes.SR_MAIN_ID']:
-                    df["Rule16_flag"].loc[row]="True"
-                else:
-                    df["Rule16_flag"].loc[row]="False"
-            else:
-                df["Rule16_flag"].loc[row]="NA"
-        else:
-            df["Rule16_flag"].loc[row]="NA"
+    # df["Rule16_flag"]=""
+    # for row in range(len(df)):
+    #     if df['attributes.SR_SIGN_CLASS'].loc[row]=='Info_Direction' or df['attributes.SR_SIGN_CLASS'].loc[row]=='Info_Direction_Yellow' :
+    #         if df['category'].loc[row]=='Supplementary Sign': 
+    #             if str(df['Trackid'])!= df['attributes.SR_MAIN_ID']:
+    #                 df["Rule16_flag"].loc[row]="True"
+    #             else:
+    #                 df["Rule16_flag"].loc[row]="False"
+    #         else:
+    #             df["Rule16_flag"].loc[row]="NA"
+    #     else:
+    #         df["Rule16_flag"].loc[row]="NA"
     
+    
+    if 'attributes.SR_MAIN_ID' in df.columns:
+        df['Rule16_flag']='NA'
+        df.loc[((df['attributes.SR_SIGN_CLASS']=='Info_Direction')|(df['attributes.SR_SIGN_CLASS']=='Info_Direction_Yellow')) & (df['category']=='Supplementary Sign') &(df['Trackid']!='attributes.SR_MAIN_ID'),'Rule16_flag'] = 'True'
+        df.loc[((df['attributes.SR_SIGN_CLASS']=='Info_Direction')|(df['attributes.SR_SIGN_CLASS']=='Info_Direction_Yellow')) & (df['category']=='Supplementary Sign') &(df['Trackid']=='attributes.SR_MAIN_ID'),'Rule16_flag'] = 'True'
+    else:
+        df['Rule16_flag']='NA'
     print("Executed Rule 16")
     
     # %%
@@ -279,24 +300,24 @@ def tool_validation(filename):
     # %%
     df["Rule17_flag"]="NA"
     condition = ((df['category'] == 'Signs') & ("_Inv" in df['attributes.SR_SIGN_CLASS']) & (df['attributes.SR_FLASHING'] == 'true'))
-    df['flag_17'] = np.where(condition,'true','check')
-    
+    df['Rule17_flag'] = np.where(condition,'true','check')
+    df.loc[((df['category']!='Signs')|("_Inv" in df['attributes.SR_SIGN_CLASS'] )),'Rule17_flag'] = 'NA'
     
     #---------------------------------------completed----------------------
-    df["Rule17_flag"]=""
-    for row in range(len(df)):
-        if df['category'].loc[row]=='Signs' :
-            if "_Inv" in df['attributes.SR_SIGN_CLASS'].loc[row]: 
-                if df['attributes.SR_FLASHING'].loc[row] == 'true':
-                    df["Rule17_flag"].loc[row]="True"
-                else:
-                    df["Rule17_flag"].loc[row]="check"
-            else:
-                df["Rule17_flag"].loc[row]="NA"
-        else:
-            df["Rule17_flag"].loc[row]="NA"
-            #---------------------------------------completed----------------------
-    print("Executed Rule 17")
+    # df["Rule17_flag"]=""
+    # for row in range(len(df)):
+    #     if df['category'].loc[row]=='Signs' :
+    #         if "_Inv" in df['attributes.SR_SIGN_CLASS'].loc[row]: 
+    #             if df['attributes.SR_FLASHING'].loc[row] == 'true':
+    #                 df["Rule17_flag"].loc[row]="True"
+    #             else:
+    #                 df["Rule17_flag"].loc[row]="check"
+    #         else:
+    #             df["Rule17_flag"].loc[row]="NA"
+    #     else:
+    #         df["Rule17_flag"].loc[row]="NA"
+    #         #---------------------------------------completed----------------------
+    # print("Executed Rule 17")
     # %%
     """
     # Rule 18
@@ -332,70 +353,71 @@ def tool_validation(filename):
     # Rule 19
     ## All attributes except SR_Invisible ,SR_Partly should be same for entire track id
     """
-    
-    track_id_list_19 = df['Trackid'].tolist()
-    track_id_list_19 = set(track_id_list_19)
-    track_id_list_19 = sorted(track_id_list_19)
-    
-    trackid_not_unique_19=[]
-    for val_19 in track_id_list_19:
-        df_19=df[df["Trackid"]==val_19]
-        val_19_list=df_19['attributes.SR_DISABLED'].tolist()
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
+    if 'attributes.SR_MAIN_ID' in df.columns:    
+        track_id_list_19 = df['Trackid'].tolist()
+        track_id_list_19 = set(track_id_list_19)
+        track_id_list_19 = sorted(track_id_list_19)
         
-        val_19_list=[]
-        val_19_list=df_19['attributes.SR_SIGN_EMBEDDED'].tolist()
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
+        trackid_not_unique_19=[]
+        for val_19 in track_id_list_19:
+            df_19=df[df["Trackid"]==val_19]
+            val_19_list=df_19['attributes.SR_DISABLED'].tolist()
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
             
-        val_19_list=[]
-        val_19_list=df_19['attributes.SR_FOR_OTHER_ROAD'].tolist()
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
-    
-        val_19_list=[]        
-        val_19_list=df_19['attributes.SR_FLASHING'].tolist()
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
-    
-        val_19_list=[]        
-        val_19_list=df_19['attributes.SR_TWISTED'].tolist()
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
-    
-        val_19_list=[]        
-        val_19_list=df_19['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING'].tolist()
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
-    
-        val_19_list=[]        
-        val_19_list=df_19['attributes.SR_SIGN_CLASS'].tolist()  
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
-    
-        val_19_list=[]        
-        val_19_list=df_19['attributes.SR_CONTAMINATED'].tolist() 
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
-    
-        val_19_list=[]        
-        val_19_list=df_19['attributes.SR_MAIN_ID'].tolist() 
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
-    
-        val_19_list=[]        
-        val_19_list=df_19['attributes.SR_INVALID'].tolist() 
-        if (len(np.unique(val_19_list))==1) == False:
-            trackid_not_unique_19.append(val_19)
-            
-    trackid_not_unique_19=list(set(trackid_not_unique_19))
-            
-    df["Rule19"]="NA"
-    
-    df['Rule19'] = np.where(df['Trackid'].isin(trackid_not_unique_19), 'check','true') 
-    
-    
+            val_19_list=[]
+            val_19_list=df_19['attributes.SR_SIGN_EMBEDDED'].tolist()
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+                
+            val_19_list=[]
+            val_19_list=df_19['attributes.SR_FOR_OTHER_ROAD'].tolist()
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+        
+            val_19_list=[]        
+            val_19_list=df_19['attributes.SR_FLASHING'].tolist()
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+        
+            val_19_list=[]        
+            val_19_list=df_19['attributes.SR_TWISTED'].tolist()
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+        
+            val_19_list=[]        
+            val_19_list=df_19['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING'].tolist()
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+        
+            val_19_list=[]        
+            val_19_list=df_19['attributes.SR_SIGN_CLASS'].tolist()  
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+        
+            val_19_list=[]        
+            val_19_list=df_19['attributes.SR_CONTAMINATED'].tolist() 
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+        
+            val_19_list=[]        
+            val_19_list=df_19['attributes.SR_MAIN_ID'].tolist() 
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+        
+            val_19_list=[]        
+            val_19_list=df_19['attributes.SR_INVALID'].tolist() 
+            if (len(np.unique(val_19_list))==1) == False:
+                trackid_not_unique_19.append(val_19)
+                
+        trackid_not_unique_19=list(set(trackid_not_unique_19))
+                
+        df["Rule19"]="NA"
+        
+        df['Rule19'] = np.where(df['Trackid'].isin(trackid_not_unique_19), 'check','true') 
+        
+    else:
+        df['Rule19']='NA'    
     
     
     
@@ -430,61 +452,117 @@ def tool_validation(filename):
     # %%
     """
     # Rule 22
-    ## If the main ID is having an attribute SR_Other Road= True then supplementary sign for that main id should also have SR_other road = True and vice versa
+    ## If the main class-signs is having an attribute SR_Other Road= True then supplementary sign for that
+    main id should also have SR_other road = True 
     """
     
     # %%
     
+    if 'attributes.SR_MAIN_ID' in df.columns: 
+        df["Rule22_flag"]="NA"    
+        df_other_road_22=df[df["attributes.SR_FOR_OTHER_ROAD"]=='true']
+        df_other_road_22=df_other_road_22[df_other_road_22["category"]=="Signs"]    
+            
+        df_other_road_22_list=df_other_road_22["Trackid"].tolist()    
+        df_other_road_22_list=list(set(df_other_road_22_list))
+        df_other_road_22_list=sorted(df_other_road_22_list)
+        df_other_road_22_list = [str(item) for item in df_other_road_22_list]
+          
+        #df_supple_22 = df[df['attributes.SR_MAIN_ID'].isin(df_other_road_22_list)]    
+        
+        condition = ((df['attributes.SR_MAIN_ID'].isin(df_other_road_22_list)) & (df['attributes.SR_FOR_OTHER_ROAD'] == 'true'))
+        df['Rule22_flag'] = np.where(condition,'true','false')
+        
+        #for row in range(len(df)):
+            #if df["category"].loc[row]=="Signs":
+              #  df["Rule22_flag"].loc[row]="NA"
+              
+        df.loc[(df["category"]=="Signs"), 'Rule22_flag']='NA'
+    
+    else:
+        df["Rule22_flag"]="NA" 
+            
+      
+      
     print("Executed Rule 22")
+    
     # %%
     """
     # Rule 23
-    ##  If the sign class have multi mounting= True and SR_Other road= True, all sign class in that frame with multi mounting =True should have SR_other road= True and the same is applicable for false.
+    ##  If the sign class have multi mounting= True and SR_Other road= True, all sign class in that 
+    frame with multi mounting =True should have SR_other road= True and the same is applicable for false.
     """
     
     # %%
-    """
-    df["Rule23a_flag"]="NA"
-    list_framenumbers_23a=[]
+    
+    df['rule_23a'] = 'NA'
+    df.loc[df['category']!='Signs','rule_23a']='NA'  
+    df.loc[((df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true') & (df['category'] == 'Signs') & (df['attributes.SR_FOR_OTHER_ROAD']=='true')),'rule_23a']='true'
+    frames=df.loc[((df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true') & (df['category'] == 'Signs') & (df['attributes.SR_FOR_OTHER_ROAD']=='true')),'Labels.Devices.Channels.ObjectLabels.FrameNumber']
+    df.loc[df['Labels.Devices.Channels.ObjectLabels.FrameNumber'].isin(frames) &((df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true') & (df['attributes.SR_FOR_OTHER_ROAD']!='true')),'rule_23a']='false'
+
+    # df["Rule23a_flag"]="NA"
+    # list_framenumbers_23a=[]
+    # for row in range(len(df)):
+    #     if df["category"].loc[row]== "Signs":
+    #         if df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING'].loc[row] != 'true':
+    #             if df['attributes.SR_FOR_OTHER_ROAD'].loc[row] == 'true': 
+    #                 list_framenumbers_23a.append(df['Labels.Devices.Channels.ObjectLabels.FrameNumber'])
+    # list_framenumbers_23a=list_framenumbers_23a[0].tolist()
+    # list_framenumbers_23a=sorted(list_framenumbers_23a)  
+    
+    # for i,r in df.iterrows():
+    #     for val in list_framenumbers_23a:
+    #         if val == r['Labels.Devices.Channels.ObjectLabels.FrameNumber']:
+    #             if r['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true':
+    #                 if df['attributes.SR_FOR_OTHER_ROAD'].loc[row] == 'true': 
+    #                     df.loc[i,'Rule23a_flag'] = 'true'
+    #                 else:
+    #                     df.loc[i,'Rule23a_flag'] = 'false'       
+                        
+                        
+    '''condition = ((df['Labels.Devices.Channels.ObjectLabels.FrameNumber'].isin(list_framenumbers_23a)) & (df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING'] == 'true') & (df['attributes.SR_FOR_OTHER_ROAD'] == 'true'))             
+    df['Rule23a_flag'] = np.where(condition, 'check','true')         
+
     for row in range(len(df)):
-        if df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING'].loc[row] != 'true':
-            if df['attributes.SR_FOR_OTHER_ROAD'].loc[row] == 'true': 
-                list_framenumbers_23a.append(df['Labels.Devices.Channels.ObjectLabels.FrameNumber'])
-    list_framenumbers_23a=list_framenumbers_23a[0].tolist()
-    list_framenumbers_23a=sorted(list_framenumbers_23a)  
-    
-    for i,r in df.iterrows():
-        for val in list_framenumbers_23a:
-            if val == r['Labels.Devices.Channels.ObjectLabels.FrameNumber']:
-                if r['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true':
-                    if df['attributes.SR_FOR_OTHER_ROAD'].loc[row] == 'true': 
-                        df.loc[i,'Rule23a_flag'] = 'true'
+            if if val != r['Labels.Devices.Channels.ObjectLabels.FrameNumber']:
+                if "_Inv" in df['attributes.SR_SIGN_CLASS'].loc[row]: 
+                    if df['attributes.SR_FLASHING'].loc[row] == 'true':
+                        df["Rule17_flag"].loc[row]="True"
                     else:
-                        df.loc[i,'Rule23a_flag'] = 'false'           
-                
-        
-    
+                        df["Rule17_flag"].loc[row]="check"
+                else:
+                    df["Rule17_flag"].loc[row]="NA"
+            else:
+                df["Rule17_flag"].loc[row]="NA"    '''
     
     #RULE 23b
     
-    df["Rule23b_flag"]="NA"
-    list_framenumbers_23b=[]
-    for row in range(len(df)):
-        if df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING'].loc[row] != 'true':
-            if df['attributes.SR_FOR_OTHER_ROAD'].loc[row] == 'false': 
-                list_framenumbers_23b.append(df['Labels.Devices.Channels.ObjectLabels.FrameNumber'])
-    list_framenumbers_23b=list_framenumbers_23b[0].tolist()
-    list_framenumbers_23b=sorted(list_framenumbers_23b)  
+    # df["Rule23b_flag"]="NA"
+    # list_framenumbers_23b=[]
+    # for row in range(len(df)):
+    #     if df['attributes.SR_SIGN_ON_MULTI_SIGNo documentatiN_MOUNTING'].loc[row] != 'true':
+    #         if df['attributes.SR_FOR_OTHER_ROAD'].loc[row] == 'false': 
+    #             list_framenumbers_23b.append(df['Labels.Devices.Channels.ObjectLabels.FrameNumber'])
+    # list_framenumbers_23b=list_framenumbers_23b[0].tolist()
+    # list_framenumbers_23b=sorted(list_framenumbers_23b)  
     
-    for i,r in df.iterrows():
-        for val in list_framenumbers_23b:
-            if val == r['Labels.Devices.Channels.ObjectLabels.FrameNumber']:
-                if r['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true':
-                    if df['attributes.SR_FOR_OTHER_ROAD'].loc[row] == 'false': 
-                        df.loc[i,'Rule23b_flag'] = 'true'
-                    else:
-                        df.loc[i,'Rule23b_flag'] = 'false'
-    """
+    # for i,r in df.iterrows():
+    #     for val in list_framenumbers_23b:
+    #         if val == r['Labels.Devices.Channels.ObjectLabels.FrameNumber']:
+    #             if r['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true':
+    #                 if df['attributes.SR_FOR_OTHER_ROAD'].loc[row] == 'false': 
+    #                     df.loc[i,'Rule23b_flag'] = 'true'
+    #                 else:
+    #                     df.loc[i,'Rule23b_flag'] = 'false'
+
+    df['rule_23b'] = 'NA'
+    df.loc[df['category']!='Signs','rule_23a']='NA'  
+    df.loc[((df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true') & (df['category'] == 'Signs') & (df['attributes.SR_FOR_OTHER_ROAD']=='false')),'rule_23b']='true'
+    frames=df.loc[((df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true') & (df['category'] == 'Signs') & (df['attributes.SR_FOR_OTHER_ROAD']=='false')),'Labels.Devices.Channels.ObjectLabels.FrameNumber']
+    df.loc[df['Labels.Devices.Channels.ObjectLabels.FrameNumber'].isin(frames) &((df['attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING']=='true') & (df['attributes.SR_FOR_OTHER_ROAD']=='true')),'rule_23b']='false'
+
+
     print("Executed Rule 23")
     # %%
     """
@@ -495,13 +573,58 @@ def tool_validation(filename):
     
     # %%
 
-#frame_numbers_24= df['Labels.Devices.Channels.ObjectLabels.FrameNumber'].tolist()    
-#frame_numbers_24=list(set(frame_numbers_24))    
+
+    # df["Rule24_flag"]=""
+    # def findPair(arr,n):
+    #     pairs=[]
+    #     size = len(arr)
+    #     i,j = 0,1
+    #     while i < size and j < size:
+    #         if i != j and arr[j]-arr[i] <= n:
+    #             #print("Pair found (",arr[i],",",arr[j],")")
+    #             pairs.append(arr[i])
+    #             pairs.append(arr[j])
+    #             return pairs
+    #         elif arr[j] - arr[i] > n:
+    #             j+=1
+    #         else:
+    #             i+=1
+    #     #print("No pair found")
+    #     return pairs
     
     
     
+    # df_signs_24=df[df["category"]=="Signs"]
+    # frame_numbers_24= df_signs_24['Labels.Devices.Channels.ObjectLabels.FrameNumber'].tolist()     
+    # frame_numbers_24=[k for k, v in Counter(frame_numbers_24).items() if v > 1] 
+    # frame_numbers_24=sorted(frame_numbers_24)
     
+    # for val_24 in frame_numbers_24:
+    #     df_24=df[df['Labels.Devices.Channels.ObjectLabels.FrameNumber']==val_24]
+    #     x_coordinates_24=df_24["shape.x"].tolist()
+    #     x_coordinates_24 = [item[0] for item in x_coordinates_24]
+    #    # print("----------------------", x_coordinates_24)
+    #     pairs=findPair(x_coordinates_24, 10) 
+    #     #print("pairssssssss",pairs)
+    #     if len(pairs)>1:
     
+        
+    #         for val_pair in pairs:
+    #             for row in range(len(df)):
+    #                 if df["shape.x"][0][0]==val_pair:
+    #                     if df[attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING]=="true":
+    #                         df["Rule24_flag"].loc[row]="True"
+    #                     else:
+    #                         df["Rule24_flag"].loc[row]="false"
+                            
+    #                 else:
+    #                     df["Rule24_flag"].loc[row]="NA"
+                
+        
+    #condition = ((df["shape.x"][0][0].isin(pairs)) & (df[attributes.SR_SIGN_ON_MULTI_SIGN_MOUNTING] == 'true'))
+   # df['Rule24'] = np.where(condition, 'check','true') 
+    
+   
     print("Executed Rule 24")
     # %%
     """
@@ -510,7 +633,7 @@ def tool_validation(filename):
     """
     
     # %%
-    """
+
     df["Rule25_flag"]="NA"
     from collections import Counter
     df2=df.loc[df['category'] == "Signs"] 
@@ -534,7 +657,7 @@ def tool_validation(filename):
                     df.loc[i,'Rule25_flag'] = 'false'
                 else:
                     df.loc[i,'Rule25_flag'] = 'check'
-    """
+
     
     print("Executed Rule 25")
     # %%
@@ -547,15 +670,21 @@ def tool_validation(filename):
     # condition = ((df['attributes.SR_Disabled'] == 'true') & (df['attributes.SR_FLASHING'] == 'false'))
     # df['flag_26'] = np.where(condition,'true','check')
     
-    df["Rule26_flag"]=""
-    for row in range(len(df)):
-        if df['attributes.SR_DISABLED'].loc[row] == 'true':
-            if df['attributes.SR_FLASHING'].loc[row] == 'FALSE': 
-                df["Rule26_flag"].loc[row]="True"
-            else:
-                df["Rule26_flag"].loc[row]="Check"
-        else:
-            df["Rule26_flag"].loc[row]="NA"
+    df["Rule26_flag"]="NA"
+    condition = ((df['attributes.SR_DISABLED'] == 'true') & (df['attributes.SR_FLASHING']=='false'))
+    df['Rule26_flag'] = np.where(condition,'true','check')
+    df.loc[((df['attributes.SR_DISABLED']!='true')),'Rule26_flag'] = 'NA'
+
+
+    # df["Rule26_flag"]=""
+    # for row in range(len(df)):
+    #     if df['attributes.SR_DISABLED'].loc[row] == 'true':
+    #         if df['attributes.SR_FLASHING'].loc[row] == 'FALSE': 
+    #             df["Rule26_flag"].loc[row]="True"
+    #         else:
+    #             df["Rule26_flag"].loc[row]="Check"
+    #     else:
+    #         df["Rule26_flag"].loc[row]="NA"
     
     print("Executed Rule 26")
     # %%
@@ -575,8 +704,9 @@ def tool_validation(filename):
     #     else:
     #         df["Rule26_flag"].loc[row]="NA"
     
-    condition = df['attributes.SR_SIGN_CLASS'].str.contains('Other Octagon')
+    condition = df['attributes.SR_SIGN_CLASS'].str.contains('Other_Octagon')
     df['flag_27'] = np.where(condition,'Check','NA')
+
     
     print("Executed Rule 27")
     # %%
@@ -587,11 +717,15 @@ def tool_validation(filename):
     
     # %%
     condition = (df['attributes.SR_SIGN_CLASS'].str.contains('City') & (df['attributes.SR_FOR_OTHER_ROAD'] == 'false'))
-    df['flag_28'] = np.where(condition,'true','Check')
+    df['flag_28'] = np.where(condition,'true','check')
     
+
     print("Executed Rule 28")
     # %%
     
+    
+    #if "false" or "check" in df:
+        
     writer = pd.ExcelWriter(filename.replace('.json','.xlsx'), engine='xlsxwriter')
     
     df.to_excel(writer, sheet_name='Validation_Result')
@@ -604,7 +738,8 @@ def tool_validation(filename):
     
     stop = timeit.default_timer()
     print('Execution time: ', stop - start)
-
-
-#filename = "input_folder/2019.05.29_at_17.47.20_camera-mi_324.rrec_ObjectLabels.json"
-# tool_validation(filename)
+    
+    
+    
+    
+#tool_validation(filename)

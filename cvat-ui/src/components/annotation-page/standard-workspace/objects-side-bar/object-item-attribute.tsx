@@ -5,6 +5,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Col } from 'antd/lib/grid';
 import Select from 'antd/lib/select';
+import {Popover} from 'antd';
 import Radio, { RadioChangeEvent } from 'antd/lib/radio';
 import Checkbox, { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import Input from 'antd/lib/input';
@@ -13,6 +14,9 @@ import Text from 'antd/lib/typography/Text';
 import consts from 'consts';
 import { clamp } from 'utils/math';
 import Signs from 'cvat-core/src/components/NewSigns/Signs';
+import AttributeBulkUpdate from './object-item-attribute-bulk-update';
+import NotSavedAnnotationModal from './object-item-not-saved-annotations';
+
 
 
 interface Props {
@@ -24,6 +28,8 @@ interface Props {
     attrID: number;
     clientID: number;
     changeAttribute(attrID: number, value: string): void;
+    jobInstance: any;
+    AnnotationId: number | undefined
 }
 
 function attrIsTheSame(prevProps: Props, nextProps: Props): boolean {
@@ -41,10 +47,29 @@ function attrIsTheSame(prevProps: Props, nextProps: Props): boolean {
 
 function ItemAttributeComponent(props: Props): JSX.Element {
     const {
-        attrInputType, attrValues, attrValue, attrName, attrID, readonly, changeAttribute,clientID
+        AnnotationId, jobInstance, attrInputType, attrValues, attrValue, attrName, attrID, readonly, changeAttribute,clientID
     } = props;
 
     const attrNameStyle: React.CSSProperties = { wordBreak: 'break-word', lineHeight: '1em' };
+    const [rightClick, setRightClick] = useState(false)   
+    
+    const handleRightClick = (event: { preventDefault: () => void; type: string; }) => {
+        event.preventDefault();
+        if(event.type == 'contextmenu'){
+            setRightClick(true);
+        }
+        else if(event.type == 'click'){
+            setRightClick(false)
+        }    
+    }
+
+    const handleRightClickPop = () =>{
+        setRightClick(false)
+    }
+
+    const popOverHide = (a: boolean) =>{
+        setRightClick(a)
+    }
 
     if (attrInputType === 'checkbox') {
         return (
@@ -58,10 +83,32 @@ function ItemAttributeComponent(props: Props): JSX.Element {
                         changeAttribute(attrID, value);
                     }}
                 >
-                    <Text style={attrNameStyle} className='cvat-text'>
+                    <Text 
+                        style={attrNameStyle} 
+                        className='cvat-text'
+                        onClick={handleRightClickPop}
+                        onContextMenu={handleRightClick}
+                        >
                         {attrName}
-                    </Text>
+                    </Text>                   
                 </Checkbox>
+                {AnnotationId === undefined ?  
+                     <Popover
+                     content={<NotSavedAnnotationModal jobInstance={jobInstance} popOverHide={popOverHide} />}
+                     placement="bottom"
+                     title=""
+                     trigger="click"
+                     visible={rightClick}
+                 />      
+                    :          
+                    <Popover
+                        content={<AttributeBulkUpdate AnnotationId={AnnotationId} jobInstance={jobInstance} popOverHide={popOverHide} trackId={clientID} attrValue={attrValue} attrName={attrName} attrID={attrID}/>}
+                        placement="bottom"
+                        title=""
+                        trigger="click"
+                        visible={rightClick}
+                    />     
+                }
             </Col>
         );
     }
@@ -100,7 +147,13 @@ function ItemAttributeComponent(props: Props): JSX.Element {
         return (
             <>
                 <Col span={8} style={attrNameStyle}>
-                    <Text className='cvat-text'>{attrName}</Text>
+                    <Text 
+                        className='cvat-text'
+                        onClick={handleRightClick}
+                        onContextMenu={handleRightClick}
+                    >
+                        {attrName}
+                    </Text>
                 </Col>
                 <Col span={16}>
                     <Select
@@ -120,6 +173,23 @@ function ItemAttributeComponent(props: Props): JSX.Element {
                             ),
                         )}
                     </Select>
+                    {AnnotationId === undefined ?  
+                        <Popover
+                            content={<NotSavedAnnotationModal jobInstance={jobInstance} popOverHide={popOverHide} />}
+                            placement="bottom"
+                            title=""
+                            trigger="click"
+                            visible={rightClick}
+                        />      
+                        :          
+                        <Popover
+                            content={<AttributeBulkUpdate AnnotationId={AnnotationId} jobInstance={jobInstance} popOverHide={popOverHide} trackId={clientID} attrValue={attrValue} attrName={attrName} attrID={attrID}/>}
+                            placement="bottom"
+                            title=""
+                            trigger="click"
+                            visible={rightClick}
+                        />     
+                    }
                 </Col>
             </>
         );
@@ -130,7 +200,13 @@ function ItemAttributeComponent(props: Props): JSX.Element {
         return (
             <>
                 <Col span={8} style={attrNameStyle}>
-                    <Text className='cvat-text'>{attrName}</Text>
+                    <Text 
+                        className='cvat-text'
+                        onClick={handleRightClick}
+                        onContextMenu={handleRightClick}
+                    >
+                        {attrName}
+                    </Text>
                 </Col>
                 <Col span={16}>
                     <InputNumber
@@ -147,6 +223,23 @@ function ItemAttributeComponent(props: Props): JSX.Element {
                         max={max}
                         step={step}
                     />
+                     {AnnotationId === undefined ?  
+                        <Popover
+                            content={<NotSavedAnnotationModal jobInstance={jobInstance} popOverHide={popOverHide} />}
+                            placement="bottom"
+                            title=""
+                            trigger="click"
+                            visible={rightClick}
+                        />      
+                        :          
+                        <Popover
+                            content={<AttributeBulkUpdate AnnotationId={AnnotationId} jobInstance={jobInstance} popOverHide={popOverHide} trackId={clientID} attrValue={attrValue} attrName={attrName} attrID={attrID}/>}
+                            placement="bottom"
+                            title=""
+                            trigger="click"
+                            visible={rightClick}
+                        />     
+                    }
                 </Col>
             </>
         );

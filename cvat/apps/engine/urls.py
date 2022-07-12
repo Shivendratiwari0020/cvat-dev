@@ -5,6 +5,7 @@
 
 from django.urls import path, include
 from . import views
+from . import additional_views
 from rest_framework import routers
 
 from django.views.generic import RedirectView
@@ -24,6 +25,9 @@ router.register('comments', views.CommentViewSet)
 router.register('restrictions', RestrictionsViewSet, basename='restrictions')
 router.register('cloudstorages', views.CloudStorageViewSet)
 router.register('cat',views.CatlogViewSet)
+router.register('project-additional-info',additional_views.ProjectExtraViewSet)
+router.register('project-type-info',additional_views.GetProjectMode)
+router.register('save-tracked-bulk-update',additional_views.BulkUpdate,basename='tasksjobs')
 # router.register('im',views.CatViewSet)
 
 urlpatterns = [

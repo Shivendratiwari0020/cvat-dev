@@ -146,6 +146,8 @@ function ObjectItemComponent(props: Props): JSX.Element {
                 <ObjectButtonsContainer readonly={readonly} clientID={clientID} />
                 {!!attributes.length && (
                     <ItemDetails
+                        jobInstance={jobInstance}
+                        AnnotationId={serverID}
                         readonly={readonly}
                         collapsed={collapsed}
                         clientID={clientID}

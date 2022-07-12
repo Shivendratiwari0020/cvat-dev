@@ -28,6 +28,7 @@ const Signs: React.FC<Props> = ({ attrid,clientID }: Props) => {
   const [imgattr, setImgattr] = useState("");
   const [imgname, setImgname] = useState("");
   const [signattr, setSignsattr] = useState("");
+  const [project_type,setProjectType] = useState("");
 
 
   const currentJob = useSelector((state) => state);
@@ -36,6 +37,13 @@ const Signs: React.FC<Props> = ({ attrid,clientID }: Props) => {
       .getcatalog(currentJob.annotation.job.requestedId)
       .then((res) => {
         setSigns(res);
+      });
+
+    serverProxy.jobs
+      .getProjectType(currentJob.annotation.job.requestedId)
+      .then((res) => {
+        // console.log(res.project_type)
+        setProjectType(res.project_type)
       });
   }, []);
 
@@ -74,7 +82,7 @@ const Signs: React.FC<Props> = ({ attrid,clientID }: Props) => {
               setDescription(value.description),
                 setImgattr(value.imagepath),
                 setImgname(value.signname);
-                setSignsattr(value.label_mode_dev.substr(2).replace("'",""))
+                {project_type == "label_mode_eva"? setSignsattr(value.label_mode_eva.substr(2).replace("'","")) :setSignsattr(value.label_mode_dev.substr(2).replace("'",""))}
             }}
             className="signs"
           />

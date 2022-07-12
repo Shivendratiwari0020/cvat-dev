@@ -276,6 +276,19 @@ class Sign(models.Model):
 
     class Meta:
         default_permissions = ()
+        
+class AdditionalProjectInfo(models.Model):
+    """
+        added model to store details about corrector schema and lable mode eva/dev 
+    """
+    
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project_type = models.CharField(max_length=20)
+    corrector_schema = models.JSONField()
+
+    class Meta:
+        default_permissions = ()
+
 class Catlog(models.Model):
     signid = models.IntegerField()
     signname = models.CharField(max_length=2000, blank=True)

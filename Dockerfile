@@ -8,6 +8,7 @@ ARG DJANGO_CONFIGURATION="production"
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends install -yq \
+        ffmpeg \
         apache2-dev \
         build-essential \
         curl \

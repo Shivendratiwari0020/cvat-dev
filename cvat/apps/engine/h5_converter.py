@@ -58,6 +58,8 @@ def iw(arr,obj):
     # return True
 
 print(time.time()-a)
+
+print("imagessssssssssstime", time.time()-a)
 #os.system("ffmpeg -framerate 30 -pattern_type glob -t 100 -i '*.jpeg' -c:v libx264 -pix_fmt yuv420p out.mp4")
 #zipit = "zip -r out "+bigh5+" -i '*.jpeg'"
 #os.system(zipit)
@@ -68,6 +70,8 @@ def excute_command(dirname,fff):
     #ffmpeg_output = "ffmpeg -framerate 10 -pattern_type glob -i '*.jpeg' -c:v libx264 -pix_fmt yuv420p "+ str(fff) +".mp4"
     #os.system(ffmpeg_output)
     # import ffmpeg
+    aa=time.time()
+    print("video", time.time())
     print("HERE ALL THE IMAGES ARE PRINTED NOW VIDEO PART")
     (
     ffmpeg
@@ -77,6 +81,8 @@ def excute_command(dirname,fff):
     )
     print("HERE ALL THE IMAGES ARE PRINTED NOW VIDEO PART")
 
+    bb=time.time()
+    print("ffmpegggggssssssssssstime", bb-aa)
     #zipit = "zip -r out "+fff+" -i '*.jpeg'"
     #print(zipit)
     #print("is created###########################################################")

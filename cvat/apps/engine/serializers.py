@@ -761,6 +761,28 @@ class LabeledDataSerializer(serializers.Serializer):
 class FileInfoSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=1024)
     type = serializers.ChoiceField(choices=["REG", "DIR"])
+    
+class AdditionalProjectInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AdditionalProjectInfo
+        fields = ('corrector_schema', )
+        # fields = '__all__'
+
+class AdditionalProjectTypeInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AdditionalProjectInfo
+        fields = ('project_type', )
+
+class SaveTrackSerializer(serializers.Serializer):
+    job_id = serializers.IntegerField(required=False)
+    # trackid = serializers.IntegerField(required=False)
+    start_frame = serializers.IntegerField(required=False)
+    end_frame = serializers.IntegerField()
+    AnnotationId = serializers.CharField(max_length=64)
+    attribute_id = serializers.IntegerField()
+    attribute_name = serializers.CharField(max_length=64)
+    attribute_previous_val = serializers.CharField(max_length=64)
+    attribute_val = serializers.CharField(max_length=64)
 
 class LogEventSerializer(serializers.Serializer):
     job_id = serializers.IntegerField(required=False)

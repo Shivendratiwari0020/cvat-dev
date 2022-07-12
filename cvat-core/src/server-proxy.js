@@ -245,6 +245,26 @@
                 return response.data;
             }
 
+
+            // get project type/mode
+            async function getProjectType(id) {
+                const { backendAPI } = config;
+                let response = null;
+                try {
+                    response = await Axios.get(`${backendAPI}/project-type-info/${id}`,{
+                        //response = await Axios.get(`http://localhost:8019/first?pid=${id}`,{
+                      proxy: config.proxy,
+
+                    });
+
+                }    catch (errorData) {
+                    throw generateError(errorData);
+                }
+
+                return response.data;
+            }
+            // end project type
+
              //to make the 2nd api call in view_catalogue template
             async function populateSigns(id,fname) {
                 const { backendAPI } = config;
@@ -528,6 +548,22 @@
 
                 try {
                     const response = await Axios.post(`${backendAPI}/projects`, JSON.stringify(projectSpec), {
+                        proxy: config.proxy,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    return response.data;
+                } catch (errorData) {
+                    throw generateError(errorData);
+                }
+            }
+
+            async function saveBulkupdate(payload){
+                const { backendAPI } = config;
+
+                try {
+                    const response = await Axios.post(`${backendAPI}/save-tracked-bulk-update/data/data`, JSON.stringify(payload), {
                         proxy: config.proxy,
                         headers: {
                             'Content-Type': 'application/json',
@@ -1889,7 +1925,9 @@
                             get: getJobs,
                             save: saveJob,
                             getcatalog:getSigns,
+                            getProjectType:getProjectType,
                             getPopulate:populateSigns,
+                            saveBulkupdate:saveBulkupdate,
                             getUpdate:getUpdate,
                         }),
                         writable: false,

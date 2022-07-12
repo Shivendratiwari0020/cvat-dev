@@ -411,16 +411,32 @@ class ProjectViewSet(viewsets.ModelViewSet):
     from itertools import groupby
     @action(detail=True, methods=['OPTIONS', 'POST', 'GET'], url_path=r'data/?$')
     def data(self, request, pk):
+        label_files_test=request.FILES.getlist('labelschema_files[]')
+        for x in request.FILES.getlist('labelschema_files[]'):
+            x_str=str(x)
+            x_split_list=x_str.split(".")[0]
+            x_split_list=x_split_list.lower()
+            if "corrector" in x_split_list:
+                print("yes")
+                corr_lab=x
+            else:
+                lab=x
+
         projectid=pk
+        catf_list = []
+        catsign_list = []
         if request.method == 'POST':
             cat = request.FILES['catalogue_files[]']
-            lab = request.FILES['labelschema_files[]']
+            #lab = request.FILES['labelschema_files[]']
             print("bvsfkjvbdfhjfbv")
             _dir = MEDIA_FILES_ROOT
             _dir = os.path.join(_dir, '%s_' % projectid)
             output_path = os.path.join(_dir, 'catimages')
             os.makedirs(output_path, exist_ok=True)
             print("testing")
+
+
+
             _ddir = MEDIA_FILES_ROOT
             _ddir = os.path.join(_ddir, '%s_' % projectid)
             _dir = os.path.join(_dir, 'cat')
@@ -428,10 +444,32 @@ class ProjectViewSet(viewsets.ModelViewSet):
             fs = FileSystemStorage(_dir)
             fs.save(cat.name, cat)
             print("testing1")
+
+            _dddir = MEDIA_FILES_ROOT
+            _dddir = os.path.join(_dddir, '%s_' % projectid)
+            _dddir = os.path.join(_dddir, 'corr_lab')
+            fs = FileSystemStorage(_dddir)
+            try:
+                fs.save(corr_lab.name, corr_lab)
+                vv= os.path.join(_dddir, "/", corr_lab.name)
+                input_patt = _dddir+vv
+                output_patt = os.path.join(_dddir, 'labcorrectorschema')
+                os.makedirs(output_patt, exist_ok=True)
+
+                ff = open(input_patt)
+                dataa = json.load(ff)
+                print("dataaaaaaaaaaaaaaaaaaaaa",dataa)
+            except Exception as e:
+                dataa="NA"
+                print(e)    
+                
+
             s = os.path.join(_dir, "/", cat.name)
             input_path =_dir
             # output_path=os.path.join(MEDIA_FILES_ROOT,'catimages')
             # with open(input_path,'r') as f:
+
+
             for filename in os.listdir(input_path):
                 if filename.endswith(".h5"):
                     counter=0
@@ -565,30 +603,42 @@ class ProjectViewSet(viewsets.ModelViewSet):
                                     dict_val["label_mode_eva"] = label_mode_eva
                                     dict_val["order"] = order
                                     dict_val["main_folder_name"]=list_filenames[1]
-                                    labels_create=models.Catlog(
-                                        signid=dict_val['signid'],
-                                        signname=dict_val["signname"],
+
+                                    try:
+                                        labels_create=models.Catlog(
+                                            signid=dict_val['signid'],
+                                            signname=dict_val["signname"],
+                                            projectid=dict_val["projectid"],
+                                            imagepath=dict_val["imagepath"],
+                                            description=dict_val["description"],
+                                            group_image=dict_val["group_image"],
+                                            label_mode_dev=dict_val["label_mode_dev"],
+                                            label_mode_eva=dict_val["label_mode_eva"],
+                                            order=dict_val["order"],
+                                            folder_name=dict_val["main_folder_name"]
+                                        )
+                                        # labels_create.save()
+                                        catf_list.append(labels_create)
+                                        labels_create_sign = models.Catfolder(
                                         projectid=dict_val["projectid"],
-                                        imagepath=dict_val["imagepath"],
-                                        description=dict_val["description"],
-                                        group_image=dict_val["group_image"],
-                                        label_mode_dev=dict_val["label_mode_dev"],
-                                        label_mode_eva=dict_val["label_mode_eva"],
-                                        order=dict_val["order"],
                                         folder_name=dict_val["main_folder_name"]
-                                    )
-                                    labels_create.save()
-                                    #labels_create=models.Catfolder(
-                                     #   projectid=dict_val["projectid"],
-                                      #  folder_name=dict_val["main_folder_name"]
-                                    #)
-                                    #labels_create.save()
-                                    Catfolder.objects.create(projectid=dict_val["projectid"],folder_name=dict_val["main_folder_name"])
+                                        )
+                                        catsign_list.append(labels_create_sign)
+                                        # labels_create.save()
+                                    except Exception as e:
+                                        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ error")
+                                        print(str(e))
+                                        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ error")
+                                    # Catfolder.objects.create(projectid=dict_val["projectid"],folder_name=dict_val["main_folder_name"])
 
                                     output_list.append(dict_val)
                                     signid = signid + 1
                                     counter=int(counter)+1
             # lableschema
+
+            models.Catlog.objects.bulk_create(catf_list)
+            models.Catfolder.objects.bulk_create(catsign_list)
+
 
             fs = FileSystemStorage(_ddir)
             fs.save(lab.name, lab)
@@ -626,6 +676,18 @@ class ProjectViewSet(viewsets.ModelViewSet):
             # label_list = label_list.replace("}}]}", "}]}")
             # label_list = label_list.replace("CheckBox","checkbox")
             # label_list = label_list.replace("Catalogue","catalogue")#
+
+
+            try:
+
+                label_mode=data["LabelConfig"]["CatalogueLabelMode"]
+                label_mode=label_mode[0]
+                label_mode=list(label_mode.keys())[list(label_mode.values()).index('Yes')]
+            except Exception as e:
+                label_mode="NA"
+            print("--------------------labelmode-------------------------", label_mode)
+
+
 
             label_list=data["LabelConfig"]["Anno Elements"]
             for dicti in label_list:
@@ -750,6 +812,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
                                     )
                     attr_create.save()
+
+            additionalinfo_create=models.AdditionalProjectInfo(
+                        project_id=project,
+                    project_type=label_mode,
+                        corrector_schema=dataa,
+                    )
+            additionalinfo_create.save()
 
 
             res={"status":"success"}

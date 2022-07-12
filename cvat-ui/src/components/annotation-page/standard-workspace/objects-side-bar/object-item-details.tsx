@@ -13,6 +13,8 @@ interface Props {
     collapsed: boolean;
     clientID: number;
     attributes: any[];
+    AnnotationId: number | undefined;
+    jobInstance: any;
     values: Record<number, string>;
     changeAttribute(attrID: number, value: string): void;
     collapse(): void;
@@ -39,7 +41,7 @@ function attrAreTheSame(prevProps: Props, nextProps: Props): boolean {
 
 function ItemAttributesComponent(props: Props): JSX.Element {
     const {
-        collapsed, attributes, values, readonly, changeAttribute, collapse,clientID,
+        AnnotationId, jobInstance, collapsed, attributes, values, readonly, changeAttribute, collapse,clientID,
     } = props;
 
     return (
@@ -59,6 +61,8 @@ function ItemAttributesComponent(props: Props): JSX.Element {
                                 className='cvat-object-item-attribute-wrapper'
                             >
                                 <ItemAttribute
+                                    jobInstance={jobInstance}
+                                    AnnotationId={AnnotationId}
                                     readonly={readonly}
                                     clientID={clientID}
                                     attrValue={values[attribute.id]}
