@@ -15,7 +15,7 @@ for h5_file in h5_files_list:
     task_name=h5_file.split("/")[-1]
     task_name=task_name.rsplit('.', 1)[0]
 
-    cmd = 'python3 cli.py --auth vandana:vandana --server-host 10.40.41.57 --server-port 8080  create {0} --project_id {1} local {2}'.format(task_name, project_id, h5_file)
+    cmd = 'python3 cli.py --auth vandana:vandana --server-host 10.40.41.57 --server-port 8080  create {0} --project_id {1} \ --lfs local {2}'.format(task_name, project_id, h5_file)
 
     os.system(cmd) 
     end_time=time.time()

@@ -23,7 +23,7 @@ RUN apt-get update && \
         python3-venv \
         libusb-1.0-0 && \
     rm -rf /var/lib/apt/lists/*
-
+RUN apt-get install -y ffmpeg
 # Compile Openh264 and FFmpeg
 ARG PREFIX=/opt/ffmpeg
 ARG PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig
