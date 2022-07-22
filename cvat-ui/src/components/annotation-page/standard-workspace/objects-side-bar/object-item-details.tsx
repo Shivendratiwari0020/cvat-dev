@@ -7,6 +7,7 @@ import { Row } from 'antd/lib/grid';
 import Collapse from 'antd/lib/collapse';
 
 import ItemAttribute from './object-item-attribute';
+import Corrector from './labelGenerator/corrector';
 
 interface Props {
     readonly: boolean;
@@ -43,9 +44,13 @@ function ItemAttributesComponent(props: Props): JSX.Element {
     const {
         AnnotationId, jobInstance, collapsed, attributes, values, readonly, changeAttribute, collapse,clientID,
     } = props;
+    const popOverHide = () =>{
+        console.log("")
+    }
 
     return (
         <Row>
+            <Corrector AnnotationId={AnnotationId} attributes={attributes} jobInstance={jobInstance} popOverHide={popOverHide}/>
             <Collapse
                 className='cvat-objects-sidebar-state-item-collapse'
                 activeKey={collapsed ? [] : ['details']}

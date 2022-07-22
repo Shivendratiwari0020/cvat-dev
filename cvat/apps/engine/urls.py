@@ -28,6 +28,12 @@ router.register('cat',views.CatlogViewSet)
 router.register('project-additional-info',additional_views.ProjectExtraViewSet)
 router.register('project-type-info',additional_views.GetProjectMode)
 router.register('save-tracked-bulk-update',additional_views.BulkUpdate,basename='tasksjobs')
+
+# router.register('save-tracked-bulk-update',additional_views.BulkUpdate,basename='tasksjobs')
+# router.register('project-additional-info',additional_views.ProjectExtraViewSet)
+router.register('get-tracked-frame-info',additional_views.GetCroppedImages,basename='tasksjobsframes')
+router.register('save-label-corrector-attribute',additional_views.LabelCorrectorAttrSave ,basename='tasksjobsframessummary')
+router.register('save-sr-invisible-frame-info',additional_views.SaveSRVisibleData,basename='taskssrinvisbleframes')
 # router.register('im',views.CatViewSet)
 
 urlpatterns = [

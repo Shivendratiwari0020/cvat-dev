@@ -352,11 +352,11 @@ def converter_decorator(fn):
     def inner(**kwargs):
         source_path = kwargs.get("source_path")
         if _is_h5(source_path[0]):
-            try:
-                print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ from webm $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-                converter_webm(source_path[0])
-            except Exception as e:
-                print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",e)
+            # try:
+                # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ from webm $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            converter_webm(source_path[0])
+            # except Exception as e:
+                # print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",e)
             new_path = source_path[0].split(".h5")[0]+".mp4"
             kwargs.pop("sorting_method")
             kwargs.update({"source_path":[new_path]})

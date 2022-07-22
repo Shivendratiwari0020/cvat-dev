@@ -94,7 +94,7 @@ function ItemAttributeComponent(props: Props): JSX.Element {
                 </Checkbox>
                 {AnnotationId === undefined ?  
                      <Popover
-                     content={<NotSavedAnnotationModal jobInstance={jobInstance} popOverHide={popOverHide} />}
+                     content={<NotSavedAnnotationModal jobInstance={jobInstance} popOverHide={popOverHide} flagValue={false} />}
                      placement="bottom"
                      title=""
                      trigger="click"
@@ -175,7 +175,7 @@ function ItemAttributeComponent(props: Props): JSX.Element {
                     </Select>
                     {AnnotationId === undefined ?  
                         <Popover
-                            content={<NotSavedAnnotationModal jobInstance={jobInstance} popOverHide={popOverHide} />}
+                            content={<NotSavedAnnotationModal flagValue={false} jobInstance={jobInstance} popOverHide={popOverHide} />}
                             placement="bottom"
                             title=""
                             trigger="click"
@@ -225,7 +225,7 @@ function ItemAttributeComponent(props: Props): JSX.Element {
                     />
                      {AnnotationId === undefined ?  
                         <Popover
-                            content={<NotSavedAnnotationModal jobInstance={jobInstance} popOverHide={popOverHide} />}
+                            content={<NotSavedAnnotationModal flagValue={false} jobInstance={jobInstance} popOverHide={popOverHide} />}
                             placement="bottom"
                             title=""
                             trigger="click"

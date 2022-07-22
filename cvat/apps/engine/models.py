@@ -448,6 +448,10 @@ class Job(models.Model):
         project = task.project
         return project.label_set if project else task.label_set
 
+    def get_task_id(self):
+        task = self.segment.task
+        return task.id if task else None
+
     class Meta:
         default_permissions = ()
 

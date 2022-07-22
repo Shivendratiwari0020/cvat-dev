@@ -784,6 +784,15 @@ class SaveTrackSerializer(serializers.Serializer):
     attribute_previous_val = serializers.CharField(max_length=64)
     attribute_val = serializers.CharField(max_length=64)
 
+
+class LabelSaveSerializer(serializers.Serializer):
+    attribute_id = serializers.IntegerField(required=False)
+    AnnotationId = serializers.IntegerField(required=False)
+    frame = serializers.IntegerField(required=False)
+    attribute_name = serializers.CharField(max_length=64)
+    attribute_val = serializers.CharField(max_length=64)
+
+    
 class LogEventSerializer(serializers.Serializer):
     job_id = serializers.IntegerField(required=False)
     task_id = serializers.IntegerField(required=False)

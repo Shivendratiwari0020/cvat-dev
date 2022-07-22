@@ -8,7 +8,8 @@ import { CombinedState } from 'reducers/interfaces';
 
 interface Props {
     popOverHide: (a: boolean) => void;
-    jobInstance: any
+    jobInstance: any;
+    flagValue: boolean
 }
 
 
@@ -34,14 +35,24 @@ const NotSavedAnnotationModal = (props: Props) => {
 
     return (
         <>
+            {props.flagValue ?
+                <>
+                <Modal width={650} title="Please save the annoation" visible={true} onOk={bulkUpdateAttributes} onCancel={handleCancel}>
+                    <Title level={5} style={{ display: 'block', textAlign: 'center'}}> Do you want to save the Annotation?</Title>
+                </Modal>
+            </>
+            :
+            <>
             <Button type="text" onClick={showModal}>Bulk Update</Button>
-            {isModalVisible &&
+           
                 <>
                     <Modal width={650} title="Please save the annoation" visible={isModalVisible} onOk={bulkUpdateAttributes} onCancel={handleCancel}>
                         <Title level={5} style={{ display: 'block', textAlign: 'center'}}> Do you want to save the Annotation?</Title>
                     </Modal>
                 </>
-            }
+            
+            </>
+        }
         </>
 
     )

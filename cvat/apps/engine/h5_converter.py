@@ -3,14 +3,15 @@ import io
 import cv2
 import h5py
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageEnhance
 from multiprocessing import Pool
 import os
 a = time.time()
 fn = ""
-
+print("-----------------------------------===========================================")
 print("Conversion STARTED")
-def converter_webm(filename):
+def converter_webm(filename): 
+    print("-----------------------------------===========================================")
     print("Conversion STARTED",filename)
     input_path = os.path.dirname(filename)
     # output_path = input_path.rstrip("/raw")
@@ -29,15 +30,17 @@ def converter_webm(filename):
 
         save_val = [output_path+"/"+str(i) for i in range(len(keys))]
         new_obj = list(zip(list(list_of_array),save_val))
-        #with Pool(6) as pool:
-        #    res = Pool(6).starmap(iw, new_obj)
+        with Pool(6) as pool:
+           res = Pool(6).starmap(iw, new_obj)
             # print(res)
-        all_img = [iw(i,j) for i,j in new_obj]
-        print(all_img)
+        # all_img = [iw(i,j) for i,j in new_obj]
+        # print(all_img)
         os.chdir(output_path)
         # time.sleep(500)
         #ffmpeg_output = "ffmpeg -framerate 10 -pattern_type glob -i '*.jpeg' -c:v libx264 -pix_fmt yuv420p "+ str(fn) +".mp4"
-        ffmpeg_output = 'ffmpeg -framerate 12 -i "%d.jpeg" -c:v libx264 -pix_fmt yuv420p '+ str(fn) +'.mp4'
+        # ffmpeg_output = 'ffmpeg -framerate 12 -i "%d.jpeg" -c:v libx264 -pix_fmt yuv420p '+ str(fn) +'.mp4'
+        # ffmpeg_output = 'ffmpeg -framerate 12 -i "%d.jpeg" -c:v libx264 -pix_fmt yuv420p '+ str(fn) +'.mp4'
+        ffmpeg_output = 'ffmpeg -hwaccel cuda -framerate 12 -i "%d.jpeg" -c:v libx264 -pix_fmt yuv420p '+ str(fn) +'.mp4'
         os.system(ffmpeg_output)
         # excute_command(output_path,fn)
 
@@ -46,15 +49,30 @@ def converter_webm(filename):
 import time
 def iw(arr,obj):
     img = Image.open(io.BytesIO(arr))
-    sharpened1 = img.filter(ImageFilter.SHARPEN);
-    sharpened2 = sharpened1.filter(ImageFilter.SHARPEN);
-    sharpened2.save(str(obj)+".jpeg")
+    # sharpened1 = img.filter(ImageFilter.SHARPEN);
+    # sharpened2 = sharpened1.filter(ImageFilter.SHARPEN);
+    # sharpened2.save(str(obj)+".jpeg")
     # from wand.image import Image
     # with Image(filename = str(obj)+".jpeg") as img:
     #     img.sharpen(radius = 100, sigma = 50)
     #     img.save(filename = str(obj)+".jpeg")
 
-    
+    thrshld=30
+
+    if np.mean(img) < thrshld:
+
+       enhancer = ImageEnhance.Brightness(img)
+       factor = 12.5 
+       im_output = enhancer.enhance(factor)
+
+       sharpened1 = im_output.filter(ImageFilter.SHARPEN);
+       sharpened2 = sharpened1.filter(ImageFilter.SHARPEN);
+       sharpened2.save(str(obj)+".jpeg")  
+
+    else:
+       sharpened1 = img.filter(ImageFilter.SHARPEN);
+       sharpened2 = sharpened1.filter(ImageFilter.SHARPEN);
+       sharpened2.save(str(obj)+".jpeg")       
     # return True
 
 print(time.time()-a)

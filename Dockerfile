@@ -106,6 +106,8 @@ RUN apt-get update && apt-get --no-install-recommends install -y build-essential
 # Add a non-root user
 ENV USER=${USER}
 ENV HOME /home/${USER}
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
 RUN adduser --shell /bin/bash --disabled-password --gecos "" ${USER} && \
     if [ -z ${socks_proxy} ]; then \
         echo export "GIT_SSH_COMMAND=\"ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30\"" >> ${HOME}/.bashrc; \

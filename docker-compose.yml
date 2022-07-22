@@ -29,6 +29,13 @@ services:
     container_name: cvat
     image: openvino/cvat_server
     restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     depends_on:
       - cvat_redis
       - cvat_db
