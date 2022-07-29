@@ -20,6 +20,7 @@ import consts from 'consts';
 import CVATTooltip from 'components/common/cvat-tooltip';
 import ImageSetupsContent from './image-setups-content';
 import ContextImage from '../standard-workspace/context-image/context-image';
+import serverProxy from "cvat-core/src/server-proxy";
 
 const cvat = getCore();
 
@@ -119,6 +120,22 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
         // But we do not have another way because cvat-canvas returns regular DOM element
         const [wrapper] = window.document.getElementsByClassName('cvat-canvas-container');
         wrapper.appendChild(canvasInstance.html());
+
+        const queryString = window.location.href.split("jobs/")[1];
+        let jobID = parseInt(queryString);
+        try {
+            const getTrackID = async () => {
+                return await serverProxy.jobs.getTrackIds(jobID)
+                    .then((data) => {
+                        console.log("tracks", data);
+                    });
+            }
+            getTrackID()
+
+        } catch (e) {
+            console.log("SOME ERROR", e);
+
+        }
 
         canvasInstance.configure({
             smoothImage,

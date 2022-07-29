@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import *
 from .crop_images_label_corrector import label_generator_crop
 from .serializers import *
+from django.shortcuts import get_object_or_404
 
 
 # class ProjectExtraViewSet(viewsets.ModelViewSet):
@@ -36,6 +37,10 @@ class GetCroppedImages(viewsets.ViewSet):
         print(track_id,"track_idtrack_idtrack_idtrack_idtrack_id")
         instance_trackedshape = TrackedShape.objects.filter(track_id=track_id).values()
         instance_labeledtrack = LabeledTrack.objects.filter(id=track_id).values()
+        job_id=instance_labeledtrack[0]['job_id']
+        segmentid = Job.objects.filter(id=job_id).values()[0]['segment_id']
+        last_frame = Segment.objects.filter(id=segmentid).values()[0]['stop_frame']
+
 
         # instance_trackedshape = TrackedShape.objects.filter(track_id=labe_id).values()
         # instance_labeledtrack = LabeledTrack.objects.filter(id=labe_id).values()
@@ -45,7 +50,7 @@ class GetCroppedImages(viewsets.ViewSet):
         print("image_folder", image_folder, "list_of_instance_trackedshape", list_of_instance_trackedshape, "list_of_instance_labeledtrack", list_of_instance_labeledtrack)
 
 
-        data = label_generator_crop(image_folder, list_of_instance_trackedshape, list_of_instance_labeledtrack)
+        data = label_generator_crop(image_folder, list_of_instance_trackedshape, list_of_instance_labeledtrack, last_frame)
 
         # data = "hello"
         return Response(data)
@@ -205,3 +210,61 @@ class GetProjectMode(viewsets.ModelViewSet):
         project_type = get_object_or_404(self.queryset, project_id=Job.objects.get(id=pk).get_project_id())
         serializer = self.serializer_class(project_type)
         return Response(serializer.data)
+
+
+class JobTrackSummary(viewsets.ViewSet):
+
+    def retrieve(self,request,pk):
+        # data = 
+        # pk = 64 # as of now
+        job = Job.objects.get(id=pk)
+        # track_data = job.labeledtrack_set.values_list('id','label__name','trackedshape__frame','trackedshape__outside')
+        # job.segment.stop_frame
+
+        return_list = []
+        track_count = 1
+        for item in job.labeledtrack_set.all():
+            new_dict = {}
+            new_sign_class = []
+            for j in item.trackedshape_set.all():
+                if new_dict.get(item.id):
+                    new_dict[item.id]['frames'].append(j.frame)
+                    new_dict[item.id]['ids'].append(j.id)
+                else:
+                    new_dict.update({item.id:{"label":item.label.name,"frames":[j.frame],"ids":[j.id]}})
+
+                try:
+                    new_sign_class.append(j.trackedshapeattributeval_set.filter(spec__name="SR_SIGN_CLASS").last().value)
+                except:
+                    pass
+            last_frame_outside = max(new_dict[item.id]['ids'])
+            outside = TrackedShape.objects.get(id=last_frame_outside).outside
+            if outside == False:
+                new_dict[item.id]['frames'].append(job.segment.stop_frame)
+            if new_sign_class:
+                new_dict[item.id]['sign_class'] = new_sign_class.pop()
+            else:
+                new_dict[item.id]['sign_class'] = ''
+            new_dict[item.id]['count'] = max(new_dict[item.id]['frames']) - min(new_dict[item.id]['frames']) + 1
+            new_dict[item.id]['start_frame'] = min(new_dict[item.id]['frames'])
+            new_dict[item.id]['end_frame'] = max(new_dict[item.id]['frames'])
+            new_dict[item.id]['track_id'] = track_count
+
+            new_dict[item.id].pop('ids')
+            new_dict[item.id].pop('frames')
+            return_list.append(new_dict[item.id])
+            track_count = track_count +1
+        return Response(return_list)
+
+class GetTrackIds(viewsets.ViewSet):
+
+    @action(detail=True, methods=['GET', 'OPTIONS', 'POST','PUT'])
+    def data(self,request,pk):
+        job = LabeledTrack.objects.filter(job_id=pk)
+        data = []
+        counter = 0
+        for item in job.values_list('id'):
+            data.append({item[0]:counter})
+            counter = counter +1
+        # data = [i[0] for i in job.values_list('id')]
+        return Response({"track_ids":data})

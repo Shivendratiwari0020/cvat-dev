@@ -21,6 +21,8 @@ import { ZoomHandler, ZoomHandlerImpl } from './zoomHandler';
 import { InteractionHandler, InteractionHandlerImpl } from './interactionHandler';
 import { AutoborderHandler, AutoborderHandlerImpl } from './autoborderHandler';
 import consts from './consts';
+
+
 import {
     translateToSVG,
     translateFromSVG,
@@ -2248,16 +2250,38 @@ export class CanvasViewImpl implements CanvasView, Listener {
 
         const textFontSize = this.configuration.textFontSize || 12;
         const {
-            label, clientID, attributes, source, descriptions,
+            label, serverID, clientID, attributes, source, descriptions, points
         } = state;
+        console.log("state",state)
         const attrNames = label.attributes.reduce((acc: any, val: any): void => {
             acc[val.id] = val.name;
             return acc;
         }, {});
 
+
+        const getDimentions = (points:any)=>{
+            let height = points[2] - points[0];
+            let width = points[3] - points[1]
+            return `${Math.round(height)}X${Math.round(width)}`
+        }
+
+        // const getTrackID = () => {
+        //     let track_ids = localStorage.getItem("track-ids");
+        //     track_ids = JSON.parse(track_ids);
+        //     let track_id = track_ids.filter((item: any) => {
+        //         if (item[serverID] !== undefined) {
+        //             return item
+        //         }
+        //     })
+        //     return track_id[0][serverID];
+
+        // }
+        // let trackID = getTrackID();
+
         return this.adoptedText
             .text((block): void => {
-                block.tspan(`${withLabel ? label.name : ''} ${withID ? clientID : ''} ${withSource ? `(${source})` : ''}`).style({
+                let dimensions = getDimentions(points)
+                block.tspan(`${withLabel ? label.name : ''} ${withID ? (`${dimensions} `) : ''} ${withSource ? `(${source})` : ''}`).style({
                     'text-transform': 'uppercase',
                 });
                 if (withDescriptions) {

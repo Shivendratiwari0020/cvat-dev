@@ -20,7 +20,6 @@ import Icon, {
 } from '@ant-design/icons';
 import CVATTooltip from 'components/common/cvat-tooltip';
 import { ObjectType, ShapeType } from 'reducers/interfaces';
-import FiveConcept from  './five-x-concept';
 
 import {
     ObjectOutsideIcon, FirstIcon, LastIcon, PreviousIcon, NextIcon,
@@ -308,7 +307,6 @@ function ItemButtonsComponent(props: Props): JSX.Element {
             <Col span={20} style={{ textAlign: 'center' }}>
                 <Row justify='space-around'>
                     <Col>
-                    <FiveConcept />
                     {/* <Corrector /> */}
                     </Col>
                     <Col>

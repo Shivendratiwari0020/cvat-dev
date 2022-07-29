@@ -6,11 +6,14 @@ import numpy as np
 from PIL import Image, ImageFilter, ImageEnhance
 from multiprocessing import Pool
 import os
+import json
+
 a = time.time()
 fn = ""
 print("-----------------------------------===========================================")
 print("Conversion STARTED")
 def converter_webm(filename): 
+    final_dict={}
     print("-----------------------------------===========================================")
     print("Conversion STARTED",filename)
     input_path = os.path.dirname(filename)
@@ -19,12 +22,35 @@ def converter_webm(filename):
     print(output_path)
     if filename.endswith(".h5"):
         fn=filename.split(".h5")[0]
-        fn=fn.split("/")[-1]
+        print("-----------------fnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",fn)
+        #fn=fn.split("/")[-1]
+        print(fn)
         hdf = h5py.File(filename,'r')
         keys = []
         with h5py.File(filename, 'r') as f:
             f.visit(keys.append)
+
+        devicename=keys[0]
+        channelname=keys[1].split("/")[1]
+
+        
+
+        timestamp = keys[2:]
+
+        timestamp = [i.split("/")[2] for i in timestamp]
+        frame_numbers = list(range(1, len(timestamp)+1))
+        frame_timestamp_dict = {frame_numbers1:timestamp1 for timestamp1,frame_numbers1 in zip(timestamp,frame_numbers)}
+        final_dict["devicename"]=devicename
+        final_dict["channelname"]=channelname
+        final_dict["frame_timestamp_dict"]=frame_timestamp_dict
+
+        txtfilename=fn+".txt"        
+        file1 = open(txtfilename,"w")
+        file1.write(json.dumps(final_dict))
+
         keys=keys[2:]
+
+        print(final_dict)
         print(output_path+"/"+fn+'.webM')
         list_of_array=map(lambda x:hdf[x][:], keys)
 
@@ -40,8 +66,15 @@ def converter_webm(filename):
         #ffmpeg_output = "ffmpeg -framerate 10 -pattern_type glob -i '*.jpeg' -c:v libx264 -pix_fmt yuv420p "+ str(fn) +".mp4"
         # ffmpeg_output = 'ffmpeg -framerate 12 -i "%d.jpeg" -c:v libx264 -pix_fmt yuv420p '+ str(fn) +'.mp4'
         # ffmpeg_output = 'ffmpeg -framerate 12 -i "%d.jpeg" -c:v libx264 -pix_fmt yuv420p '+ str(fn) +'.mp4'
+        #ffmpeg_output = 'ffmpeg -framerate 12 -i "%d.jpeg" -c:v libx264 -pix_fmt yuv420p '+ str(fn) +'.mp4'
         ffmpeg_output = 'ffmpeg -hwaccel cuda -framerate 12 -i "%d.jpeg" -c:v libx264 -pix_fmt yuv420p '+ str(fn) +'.mp4'
         os.system(ffmpeg_output)
+
+        ends=(".jpeg", ".h5")
+        for f in os.listdir(output_path):
+            if not f.endswith(ends):
+                continue
+            os.remove(os.path.join(output_path, f))
         # excute_command(output_path,fn)
 
 

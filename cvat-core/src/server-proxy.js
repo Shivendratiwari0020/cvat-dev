@@ -1854,6 +1854,25 @@
                 return response.data;
             }
 
+            async function getTrackIds(id) {
+                const { backendAPI } = config;
+                let response = null;
+                try {
+                    response = await Axios.get(`${backendAPI}/get-track-ids/${id}/data`,{
+                        //response = await Axios.get(`http://localhost:8019/first?pid=${id}`,{
+                      proxy: config.proxy,
+
+                    });
+
+                }    catch (errorData) {
+                    throw generateError(errorData);
+                }
+                // console.log("getTrackIds response", response);
+                localStorage.setItem("track-ids",JSON.stringify(response.data.track_ids))
+                // console.log("storing response data" ,response.data.track_ids);
+                return response.data;
+            }
+
             async function updateOrganizationMembership(membershipId, data) {
                 const { backendAPI } = config;
                 let response = null;
@@ -1916,6 +1935,20 @@
                     throw generateError(errorData);
                 }
             }
+            async function getTrackedFrameSummary(id) {
+                const { backendAPI } = config;
+                let response = null;
+                try {
+                    response = await Axios.get(`${backendAPI}/get-tracked-frame-summary/${id}`,{                       
+                      proxy: config.proxy,
+                    });
+
+                }    catch (errorData) {
+                    throw generateError(errorData);
+                }
+
+                return response.data;
+            }  
 
             async function getMembershipInvitation(id) {
                 const { backendAPI } = config;
@@ -1996,9 +2029,11 @@
                             saveBulkupdate:saveBulkupdate,
                             getUpdate:getUpdate,
                             labelCorrectorImages:labelCorrectorImages,
+                            getTrackIds:getTrackIds,
                             getCorrectorData:getCorrectorData,
                             saveLabelCorrectorAttributeData:saveLabelCorrectorAttributeData,
                             saveSrInvisibleLabelCorrectorAttributeData:saveSrInvisibleLabelCorrectorAttributeData,
+                            getTrackedFrameSummary:getTrackedFrameSummary
                         }),
                         writable: false,
                     },

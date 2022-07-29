@@ -19,6 +19,7 @@ import { adjustContextImagePosition } from 'components/annotation-page/standard-
 import { collapseSidebar as collapseSidebarAction } from 'actions/annotation-actions';
 import AppearanceBlock from 'components/annotation-page/appearance-block';
 import IssuesListComponent from 'components/annotation-page/standard-workspace/objects-side-bar/issues-list';
+import ObjectLabelSummary from './object-item-summary';
 
 interface OwnProps {
     objectsList: JSX.Element;
@@ -104,6 +105,9 @@ function ObjectsSideBar(props: StateToProps & DispatchToProps & OwnProps): JSX.E
             </span>
 
             <Tabs type='card' defaultActiveKey='objects' className='cvat-objects-sidebar-tabs'>
+                <Tabs.TabPane tab={<Text >Summary</Text>} >
+                    <ObjectLabelSummary />
+                </Tabs.TabPane>
                 <Tabs.TabPane tab={<Text strong>Objects</Text>} key='objects'>
                     {objectsList}
                 </Tabs.TabPane>

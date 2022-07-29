@@ -1259,7 +1259,7 @@ export function createAnnotationsAsync(sessionInstance: any, frame: number, stat
             await sessionInstance.annotations.put(statesToCreate);
             const states = await sessionInstance.annotations.get(frame, showAllInterpolationTracks, filters);
             const history = await sessionInstance.actions.get();
-
+        
             dispatch({
                 type: AnnotationActionTypes.CREATE_ANNOTATIONS_SUCCESS,
                 payload: {
@@ -1267,6 +1267,9 @@ export function createAnnotationsAsync(sessionInstance: any, frame: number, stat
                     history,
                 },
             });
+            // dispatch(saveAnnotationsAsync(sessionInstance));
+
+
         } catch (error) {
             dispatch({
                 type: AnnotationActionTypes.CREATE_ANNOTATIONS_FAILED,

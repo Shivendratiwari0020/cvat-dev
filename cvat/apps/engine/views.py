@@ -700,6 +700,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
             label_list=json.dumps(label_list)
             label_list=str(label_list)
+
+            label_list=label_list.replace("\"SR_MAIN_ID\": {\"Mandatory\": \"No\", \"Type\": \"ComboBox\",", "\"SR_MAIN_ID\": {\"Mandatory\": \"No\", \"Type\": \"TextEditor\"," )
+
             label_list=label_list.replace("True","true")
             label_list=label_list.replace("category","name")
             label_list=label_list.replace("Attributes","attributes")

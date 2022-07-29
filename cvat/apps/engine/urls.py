@@ -34,6 +34,8 @@ router.register('save-tracked-bulk-update',additional_views.BulkUpdate,basename=
 router.register('get-tracked-frame-info',additional_views.GetCroppedImages,basename='tasksjobsframes')
 router.register('save-label-corrector-attribute',additional_views.LabelCorrectorAttrSave ,basename='tasksjobsframessummary')
 router.register('save-sr-invisible-frame-info',additional_views.SaveSRVisibleData,basename='taskssrinvisbleframes')
+router.register('get-tracked-frame-summary',additional_views.JobTrackSummary,basename='tasksjobsframessummary')
+router.register('get-track-ids',additional_views.GetTrackIds ,basename='trackids')
 # router.register('im',views.CatViewSet)
 
 urlpatterns = [

@@ -8,27 +8,44 @@ class output_conversion_cls:
 
     def h5_extract_start(self,input_h5_file):
         for filename in os.listdir(input_h5_file):
-            if filename.endswith(".h5"):
-                #print(filename)
-                fn=filename.split(".h5")[0]
-                #print(fn)
-                filename=os.path.join(input_h5_file,filename)
-                hdf = h5py.File(filename,'r')
-                keys = []
-                with hdf as f: # open file
-                    f.visit(keys.append)
-
-                devicename=keys[0]
-                channelname=keys[1].split("/")[1]
-
-                timestamp = keys[2:]
-
-                timestamp = [i.split("/")[2] for i in timestamp]
-                frame_numbers = list(range(1, len(timestamp)+1))
-                frame_timestamp_dict = {frame_numbers1:timestamp1 for timestamp1,frame_numbers1 in zip(timestamp,frame_numbers)}
-
-        #print(devicename,channelname,frame_timestamp_dict)
+            if filename.endswith(".txt"):
+                filename_json=os.path.join(input_h5_file,filename)
+                f = open(filename_json)
+                data = json.load(f)    
+                devicename=data["devicename"]
+                channelname=data["channelname"]
+                frame_timestamp_dict = data["frame_timestamp_dict"]
+                frame_timestamp_dict = {int(k):int(v) for k,v in frame_timestamp_dict.items()}
+                
+        print(devicename,channelname,frame_timestamp_dict)
+                
         return devicename,channelname,frame_timestamp_dict
+
+# class output_conversion_cls:
+
+#     def h5_extract_start(self,input_h5_file):
+#         for filename in os.listdir(input_h5_file):
+#             if filename.endswith(".h5"):
+#                 #print(filename)
+#                 fn=filename.split(".h5")[0]
+#                 #print(fn)
+#                 filename=os.path.join(input_h5_file,filename)
+#                 hdf = h5py.File(filename,'r')
+#                 keys = []
+#                 with hdf as f: # open file
+#                     f.visit(keys.append)
+
+#                 devicename=keys[0]
+#                 channelname=keys[1].split("/")[1]
+
+#                 timestamp = keys[2:]
+
+#                 timestamp = [i.split("/")[2] for i in timestamp]
+#                 frame_numbers = list(range(1, len(timestamp)+1))
+#                 frame_timestamp_dict = {frame_numbers1:timestamp1 for timestamp1,frame_numbers1 in zip(timestamp,frame_numbers)}
+
+#         #print(devicename,channelname,frame_timestamp_dict)
+#         return devicename,channelname,frame_timestamp_dict
 
     def output_conversion_objectlabel(self, labelfile_input_path, input_h5_file, task_name, login_name):
         devicename,channelname,frame_timestamp_dict=occ.h5_extract_start(input_h5_file)

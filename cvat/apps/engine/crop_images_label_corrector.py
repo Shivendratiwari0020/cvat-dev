@@ -1,7 +1,15 @@
 import cv2
 import os
 
-def label_generator_crop(image_folder, list_of_instance_trackedshape,list_of_instance_labeledtrack):    
+def label_generator_crop(image_folder, list_of_instance_trackedshape,list_of_instance_labeledtrack, last_frame):    
+    #image_folder=vid.rsplit("\\", 1)[0]
+
+    print("list_of_instance_trackedshape", list_of_instance_trackedshape, "list_of_instance_labeledtrack",list_of_instance_labeledtrack)
+    for filename in os.listdir(image_folder):
+        if filename.endswith(".mp4"):
+            #print(filename)
+            vid=os.path.join(image_folder,filename)
+
     rem_list = ['type', 'occluded', 'z_order', 'rotation', 'id']
     
     
@@ -12,25 +20,46 @@ def label_generator_crop(image_folder, list_of_instance_trackedshape,list_of_ins
     
     last_frame_dict = next((item for item in list_of_instance_trackedshape if item['outside'] == True), None)
     
-    last_frame_track=last_frame_dict["frame"]-1
-    
+    #last_frame_track=last_frame_dict["frame"]-1
+
+    if last_frame_dict is None:
+        last_frame_track=last_frame
+    else:
+        last_frame_track=last_frame_dict["frame"]-1
     
     instance_list=list_of_instance_trackedshape
     
 
-    for i in range(len(instance_list)+1):
+    for i in range(len(instance_list)):
         print("-----------------------------------",instance_list)
         print(instance_list[i]["frame"])
-        if instance_list[i+1]["frame"] == instance_list[i]["frame"] +1:
-            continue
-        else:
-            dict_to_append={}
-            dict_to_append["points"]=instance_list[i]["points"]
-            dict_to_append["track_id"]=instance_list[i]["track_id"]
-            dict_to_append["frame"] = instance_list[i]["frame"] +1
-            dict_to_append["outside"]= False
-            instance_list.append(dict_to_append)
-            instance_list = sorted(instance_list, key=lambda d: d['frame']) 
+        try:
+            if instance_list[i+1]["frame"] == instance_list[i]["frame"] +1:
+                continue
+            else:
+                dict_to_append={}
+                dict_to_append["points"]=instance_list[i]["points"]
+                dict_to_append["track_id"]=instance_list[i]["track_id"]
+                dict_to_append["frame"] = instance_list[i]["frame"] +1
+                dict_to_append["outside"]= False
+                instance_list.append(dict_to_append)
+                instance_list = sorted(instance_list, key=lambda d: d['frame']) 
+        except Exception as e:
+            print(e)
+    
+    # for i in range(len(instance_list)+1):
+    #     print("-----------------------------------",instance_list)
+    #     print(instance_list[i]["frame"])
+    #     if instance_list[i+1]["frame"] == instance_list[i]["frame"] +1:
+    #         continue
+    #     else:
+    #         dict_to_append={}
+    #         dict_to_append["points"]=instance_list[i]["points"]
+    #         dict_to_append["track_id"]=instance_list[i]["track_id"]
+    #         dict_to_append["frame"] = instance_list[i]["frame"] +1
+    #         dict_to_append["outside"]= False
+    #         instance_list.append(dict_to_append)
+    #         instance_list = sorted(instance_list, key=lambda d: d['frame']) 
             
     instance_list = [i for i in instance_list if not (i['outside'] == True)]            
             
@@ -42,20 +71,34 @@ def label_generator_crop(image_folder, list_of_instance_trackedshape,list_of_ins
         dict_to_append["outside"]= False
         instance_list.append(dict_to_append)
         instance_list = sorted(instance_list, key=lambda d: d['frame'])
+    
+    
+    def get_image_from_vid(frame_list):
+        frame_list=sorted(frame_list)
+        frame_set_no = frame_list[0] 
+        cap = cv2.VideoCapture(vid)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_set_no)
+        success, image = cap.read()
+        return image
             
     cropped_img_paths=[]
     for dict_fin in instance_list:
+        frame_list=[]
         xmin,ymin,xmax,ymax=dict_fin["points"]
         xmin=int(xmin)
         ymin=int(ymin)
         xmax=int(xmax)
         ymax=int(ymax)
-        img_path_input=os.path.join(image_folder, str(dict_fin["frame"])+".jpeg")
+        #img_path_input=os.path.join(image_folder, str(dict_fin["frame"])+".jpeg")
         img_path_output=os.path.join(image_folder, str(dict_fin["frame"])+"_crop.jpeg")
-        img=cv2.imread(img_path_input)
+        #img=cv2.imread(img_path_input)
+        frame_list.append(dict_fin["frame"])
+        img=get_image_from_vid(frame_list)
         crop_img = img[ymin:ymax, xmin:xmax]  
         cv2.imwrite(img_path_output, crop_img)
         cropped_img_paths.append(img_path_output)
+
+    print("ropppeeeeeeeeeeeeeeeeeeeeeeeeed", cropped_img_paths)
     
     
     
@@ -66,18 +109,27 @@ def label_generator_crop(image_folder, list_of_instance_trackedshape,list_of_ins
         
     list_of_dict_final=[]
     for img_crop in cropped_img_paths:
-        
         dict_final={}
         img_crop_base64=img_to_base64(img_crop)
-        frame_num=cropped_img_paths[0].split("\\")[-1]
+        frame_num=img_crop.split("\\")[-1]
         frame_num=frame_num.split(".")[0]
         frame_num=frame_num.split("_")[0]
-        # dict_final["frame"]=frame_num
+        #dict_final["frame"]=frame_num
         dict_final["frame"]=img_crop.split("_crop.jpeg")[0].split("/")[-1]
         dict_final["img_base64"]=img_crop_base64
         list_of_dict_final.append(dict_final)
-    
+        #print("listtttttttttttttttttttttttttttttttttttttttt",list_of_dict_final)
+
+    for f in os.listdir(image_folder):
+        if not f.endswith(".jpeg"):
+            continue
+        os.remove(os.path.join(image_folder, f))
+        
     return list_of_dict_final
+    
+    
+    
+
 
 
 #image_folder= r"C:\Users\105926\Documents\h5_to_images"

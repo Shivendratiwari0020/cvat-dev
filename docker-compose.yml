@@ -57,7 +57,7 @@ services:
       - cvat_data:/home/django/data
       - cvat_keys:/home/django/keys
       - cvat_logs:/home/django/logs
-      - ./data:/home/django/data/catlo
+        #      - ./data:/home/django/data/catlo
     networks:
       - cvat
 
