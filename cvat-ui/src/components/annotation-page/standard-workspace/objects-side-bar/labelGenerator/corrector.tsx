@@ -73,11 +73,11 @@ const Corrector = (props:Props) => {
 
     };
 
-    document.addEventListener('keydown', (event) => {
-        if (event.key == 'w') {
-            callSave();
-        }
-    })
+    // document.addEventListener('keydown', (event) => {
+    //     if (event.key == 'w') {
+    //         callSave();
+    //     }
+    // })
     
     const handleRightClick = (event: { preventDefault: () => void; type: string; }, id) => {
         event.preventDefault();         

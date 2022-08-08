@@ -29,7 +29,8 @@ class GetCroppedImages(viewsets.ViewSet):
     @action(detail=True, methods=['GET', 'OPTIONS', 'POST','PUT'])
     def frame_data(self,request,pk):
         task_id = Job.objects.get(id=pk).get_task_id()
-        image_folder = settings.BASE_DIR+"/data/data/"+str(task_id)+"/raw/"
+        data_id = Task.objects.get(id=task_id).data_id
+        image_folder = settings.BASE_DIR+"/data/data/"+str(data_id)+"/raw/"
 
         # track_id = 291
         track_id = request.GET.get("track_id")

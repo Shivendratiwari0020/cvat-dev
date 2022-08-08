@@ -28,39 +28,43 @@ def label_generator_crop(image_folder, list_of_instance_trackedshape,list_of_ins
         last_frame_track=last_frame_dict["frame"]-1
     
     instance_list=list_of_instance_trackedshape
-    
 
-    for i in range(len(instance_list)):
-        print("-----------------------------------",instance_list)
-        print(instance_list[i]["frame"])
-        try:
-            if instance_list[i+1]["frame"] == instance_list[i]["frame"] +1:
-                continue
-            else:
-                dict_to_append={}
-                dict_to_append["points"]=instance_list[i]["points"]
-                dict_to_append["track_id"]=instance_list[i]["track_id"]
-                dict_to_append["frame"] = instance_list[i]["frame"] +1
-                dict_to_append["outside"]= False
-                instance_list.append(dict_to_append)
-                instance_list = sorted(instance_list, key=lambda d: d['frame']) 
-        except Exception as e:
-            print(e)
+    instance_list = sorted(instance_list, key=lambda d: d['frame'])  
     
-    # for i in range(len(instance_list)+1):
-    #     print("-----------------------------------",instance_list)
-    #     print(instance_list[i]["frame"])
-    #     if instance_list[i+1]["frame"] == instance_list[i]["frame"] +1:
-    #         continue
-    #     else:
-    #         dict_to_append={}
-    #         dict_to_append["points"]=instance_list[i]["points"]
-    #         dict_to_append["track_id"]=instance_list[i]["track_id"]
-    #         dict_to_append["frame"] = instance_list[i]["frame"] +1
-    #         dict_to_append["outside"]= False
-    #         instance_list.append(dict_to_append)
-    #         instance_list = sorted(instance_list, key=lambda d: d['frame']) 
-            
+    try:
+        instance_list = [i for i in instance_list if not (i['outside'] == True)] 
+        while instance_list[-1]["frame"]-1 != instance_list[-2]["frame"]:
+            for i in range(len(instance_list)):
+                try:
+                    if instance_list[i+1]["frame"] == instance_list[i]["frame"] +1:
+                        continue
+                    else:
+                        dict_to_append={}
+                        dict_to_append["points"]=instance_list[i]["points"]
+                        dict_to_append["track_id"]=instance_list[i]["track_id"]
+                        dict_to_append["frame"] = instance_list[i]["frame"] +1
+                        dict_to_append["outside"]= False
+                        instance_list.append(dict_to_append)
+                        instance_list = sorted(instance_list, key=lambda d: d['frame']) 
+                except Exception as e:
+                    print(e)
+    except:
+        for i in range(len(instance_list)):
+            try:
+                if instance_list[i+1]["frame"] == instance_list[i]["frame"] +1:
+                    continue
+                else:
+                    dict_to_append={}
+                    dict_to_append["points"]=instance_list[i]["points"]
+                    dict_to_append["track_id"]=instance_list[i]["track_id"]
+                    dict_to_append["frame"] = instance_list[i]["frame"] +1
+                    dict_to_append["outside"]= False
+                    instance_list.append(dict_to_append)
+                    instance_list = sorted(instance_list, key=lambda d: d['frame']) 
+            except Exception as e:
+                print(e)
+
+    print("midddddddddddddddd", instance_list)      
     instance_list = [i for i in instance_list if not (i['outside'] == True)]            
             
     while instance_list[-1]["frame"]!=last_frame_track:
@@ -71,6 +75,8 @@ def label_generator_crop(image_folder, list_of_instance_trackedshape,list_of_ins
         dict_to_append["outside"]= False
         instance_list.append(dict_to_append)
         instance_list = sorted(instance_list, key=lambda d: d['frame'])
+
+    print("fina_________________inst", instance_list)
     
     
     def get_image_from_vid(frame_list):

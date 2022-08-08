@@ -953,6 +953,76 @@ export class CanvasViewImpl implements CanvasView, Listener {
                 }
             }
         }
+
+        if(e.key == 'w'){
+            e.preventDefault();
+            if (this.activeElement) {
+            const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === this.activeElement.clientID);
+            state.points[2] = state.points[2] + 2;
+            this.onEditDone(state,state.points,0);
+            }
+        }
+        if(e.key == 'W'){
+            e.preventDefault();
+            if (this.activeElement) {
+            const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === this.activeElement.clientID);
+            state.points[2] = state.points[2] - 2;
+            this.onEditDone(state,state.points,0);
+            }
+        }
+
+        if (e.key == 'e'){
+            e.preventDefault();
+            if (this.activeElement) {
+            const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === this.activeElement.clientID);
+            state.points[3] = state.points[3] + 2;
+            this.onEditDone(state,state.points,0);
+            }
+        }
+        if (e.key == 'E'){
+            e.preventDefault();
+            if (this.activeElement) {
+            const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === this.activeElement.clientID);
+            state.points[3] = state.points[3] - 2;
+            this.onEditDone(state,state.points,0);
+            }
+        }
+
+        if(e.key == 'z'){
+            e.preventDefault();
+            if (this.activeElement) {
+            const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === this.activeElement.clientID);
+            state.points[0] = state.points[0] + 2;
+            this.onEditDone(state,state.points,0);
+            }
+        }
+
+        if(e.key == 'Z'){
+            e.preventDefault();
+            if (this.activeElement) {
+            const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === this.activeElement.clientID);
+            state.points[0] = state.points[0] - 2;
+            this.onEditDone(state,state.points,0);
+            }
+        }
+
+        if(e.key == 'x'){
+            e.preventDefault();
+            if (this.activeElement) {
+            const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === this.activeElement.clientID);
+            state.points[1] = state.points[1] + 2;
+            this.onEditDone(state,state.points,0);
+            }
+        }
+
+        if(e.key == 'X'){
+            e.preventDefault();
+            if (this.activeElement) {
+            const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === this.activeElement.clientID);
+            state.points[1] = state.points[1] - 2;
+            this.onEditDone(state,state.points,0);
+            }
+        }
     };
 
     private onShiftKeyUp = (e: KeyboardEvent): void => {
@@ -2281,7 +2351,7 @@ export class CanvasViewImpl implements CanvasView, Listener {
         return this.adoptedText
             .text((block): void => {
                 let dimensions = getDimentions(points)
-                block.tspan(`${withLabel ? label.name : ''} ${withID ? (`${dimensions} `) : ''} ${withSource ? `(${source})` : ''}`).style({
+                block.tspan(`${withLabel ? label.name : ''} ${withID ? (` ${dimensions} `) : ''} ${withSource ? `(${source})` : ''}`).style({
                     'text-transform': 'uppercase',
                 });
                 if (withDescriptions) {
