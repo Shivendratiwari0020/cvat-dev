@@ -93,6 +93,20 @@ function ItemTopComponent(props: Props): JSX.Element {
         setColorPickerVisible(visible);
     };
 
+    // const getTrackID = () => {
+    //     let track_ids = localStorage.getItem("track-ids");
+    //     track_ids = JSON.parse(track_ids);
+    //     let track_id = track_ids.filter((item: any) => {
+    //         if (item[serverID] !== undefined) {
+    //             return item
+    //         }
+    //     })
+    //     return track_id[0][serverID];
+    
+    // }
+    // let trackID = getTrackID();
+    // console.log("trackID object-->",trackID);
+    
     return (
         <Row align='middle'>
             <Col span={10}>

@@ -121,21 +121,36 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
         const [wrapper] = window.document.getElementsByClassName('cvat-canvas-container');
         wrapper.appendChild(canvasInstance.html());
 
-        const queryString = window.location.href.split("jobs/")[1];
-        let jobID = parseInt(queryString);
-        try {
-            const getTrackID = async () => {
-                return await serverProxy.jobs.getTrackIds(jobID)
-                    .then((data) => {
-                        console.log("tracks", data);
-                    });
-            }
-            getTrackID()
+        // const queryString = window.location.href.split("jobs/")[1];
+        // let jobID = parseInt(queryString);
+        // try {
+        //     const getTrackID = async () => {
+        //         return await serverProxy.jobs.getTrackIds(jobID)
+        //             .then((data) => {
+        //                 console.log("tracks", data);
+        //             });
+        //     }
+        //     getTrackID()
 
-        } catch (e) {
-            console.log("SOME ERROR", e);
+        // } catch (e) {
+        //     console.log("SOME ERROR", e);
 
-        }
+        // }
+
+
+        // const queryString = window.location.href.split("jobs/")[1];
+        // let jobID = parseInt(queryString);
+        // const getTrackID = async () => {
+        //     return await fetch(`http://10.40.41.58:8080/api/get-track-ids/${jobID}/data`)
+        //         .then((response) => response.json())
+        //         .then((data) => {
+        //             localStorage.setItem("track-ids",JSON.stringify(data.track_ids))
+        //             console.log("storing response data" ,data.track_ids);
+        //         });
+        // }
+        // getTrackID()
+
+
 
         canvasInstance.configure({
             smoothImage,

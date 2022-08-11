@@ -2239,7 +2239,8 @@ def _export_annotations(db_instance, rq_id, request, format_name, action, callba
                     with zipfile.ZipFile(file_path, 'r') as zip_ref:
                         zip_ref.extractall(dir_to_extract)
                     labelfile_input_path = dir_to_extract + "/annotations/instances_default.json"
-                    h5_file_path = settings.BASE_DIR+"/data/data/"+str(db_instance.id)+"/raw/"
+                    h5_file_path = settings.BASE_DIR+"/data/data/"+str(db_instance.data_id)+"/raw/"
+                    print("h5_file_path",h5_file_path)
                     input_h5_file = h5_file_path
                     #try:
                     occ.output_conversion_objectlabel(labelfile_input_path, input_h5_file, task_name, login_name)
@@ -2266,7 +2267,7 @@ def _export_annotations(db_instance, rq_id, request, format_name, action, callba
                         )
                     # STARTING CONVERSION SCRIPT
                     if format_name == "CANVAS 1.0":
-                        file_path = settings.BASE_DIR+"/data/data/"+str(db_instance.id)+"/raw/"+"hello.zip"
+                        file_path = settings.BASE_DIR+"/data/data/"+str(db_instance.data_id)+"/raw/"+"hello.zip"
                     # ENDING CONVERSION SCRIPT
                     return sendfile(request, file_path, attachment=True,
                         attachment_filename=filename.lower())
