@@ -255,7 +255,7 @@ function RemoveItem(props: ItemProps): JSX.Element {
                                         onChange={handleOptionSelect}
                                         // value={option}
                                         >
-                                            <Radio value={"current-frame"}>Current Frame</Radio>
+                                            <Radio value={"current-frame"}>Current Frame state</Radio>
                                             <Radio value={"current-frame-to-end-frame"}>Current Frame to End Frame</Radio>
                                             <Radio value={"start-frame-to-current-frame"}>Start Frame to Current Frame</Radio>
                                             <Radio value={"start-frame-to-end-frame"}>Start Frame to End Frame</Radio>
