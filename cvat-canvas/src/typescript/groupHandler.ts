@@ -186,6 +186,8 @@ export class GroupHandlerImpl implements GroupHandler {
     }
 
     public select(objectState: any): void {
+        console.log("select group handler",objectState);
+        
         const stateIndexes = this.statesToBeGroupped.map((state): number => state.clientID);
         const includes = stateIndexes.indexOf(objectState.clientID);
         if (includes !== -1) {
@@ -196,7 +198,7 @@ export class GroupHandlerImpl implements GroupHandler {
                 shape.removeClass('cvat_canvas_shape_grouping');
             }
         } else {
-            const shape = this.canvas.select(`#cvat_canvas_shape_${objectState.clientID}`).first();
+            const shape = this.canvas.select(`#cvat_canvas_shape_${objectState.clientID}`);
             if (shape) {
                 this.statesToBeGroupped.push(objectState);
                 this.highlightedShapes[objectState.clientID] = shape;

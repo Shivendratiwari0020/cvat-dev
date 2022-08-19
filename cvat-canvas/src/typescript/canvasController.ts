@@ -72,6 +72,8 @@ export class CanvasControllerImpl implements CanvasController {
     }
 
     public drag(x: number, y: number): void {
+        // console.log("dradding invoked for ",x,y);
+        
         if (this.isDragging) {
             const topOffset: number = y - this.lastDragPosition.y;
             const leftOffset: number = x - this.lastDragPosition.x;

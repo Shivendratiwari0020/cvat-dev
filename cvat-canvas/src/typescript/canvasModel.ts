@@ -188,7 +188,7 @@ export interface CanvasModel {
     geometry: Geometry;
     mode: Mode;
     exception: Error | null;
-
+    objectTrackID: number;
     zoom(x: number, y: number, direction: number): void;
     move(topOffset: number, leftOffset: number): void;
 
@@ -246,6 +246,7 @@ export class CanvasModelImpl extends MasterImpl implements CanvasModel {
         selected: any;
         mode: Mode;
         exception: Error | null;
+        objectTrackID: number;
     };
 
     public constructor() {
@@ -310,6 +311,7 @@ export class CanvasModelImpl extends MasterImpl implements CanvasModel {
             selected: null,
             mode: Mode.IDLE,
             exception: null,
+            objectTrackID: 4,
         };
     }
 
@@ -344,6 +346,8 @@ export class CanvasModelImpl extends MasterImpl implements CanvasModel {
     }
 
     public fitCanvas(width: number, height: number): void {
+        console.log("fitCanvas", width, height);
+        
         this.data.canvasSize.height = height;
         this.data.canvasSize.width = width;
 
@@ -452,6 +456,8 @@ export class CanvasModelImpl extends MasterImpl implements CanvasModel {
     }
 
     public activate(clientID: number | null, attributeID: number | null): void {
+        console.log("activate in canvasModal", clientID);
+        
         if (this.data.activeElement.clientID === clientID && this.data.activeElement.attributeID === attributeID) {
             return;
         }
@@ -574,6 +580,8 @@ export class CanvasModelImpl extends MasterImpl implements CanvasModel {
     }
 
     public interact(interactionData: InteractionData): void {
+        console.log("interact modal invoked",interactionData);
+        
         if (![Mode.IDLE, Mode.INTERACT].includes(this.data.mode)) {
             throw Error(`Canvas is busy. Action: ${this.data.mode}`);
         }

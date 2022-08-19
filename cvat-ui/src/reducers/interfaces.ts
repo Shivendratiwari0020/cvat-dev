@@ -600,6 +600,7 @@ export interface AnnotationState {
         states: any[];
         filters: any[];
         resetGroupFlag: boolean;
+        // parentID : number
         history: {
             undo: [string, number][];
             redo: [string, number][];

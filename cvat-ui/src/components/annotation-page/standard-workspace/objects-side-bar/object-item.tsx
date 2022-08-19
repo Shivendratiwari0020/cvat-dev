@@ -34,6 +34,7 @@ interface Props {
     toBackground(): void;
     toForeground(): void;
     remove(): void;
+    removeLabelledAnnotations(): void;
     changeLabel(label: any): void;
     changeAttribute(attrID: number, value: string): void;
     changeColor(color: string): void;
@@ -86,6 +87,7 @@ function ObjectItemComponent(props: Props): JSX.Element {
         toBackground,
         toForeground,
         remove,
+        removeLabelledAnnotations,
         changeLabel,
         changeAttribute,
         changeColor,
@@ -136,6 +138,7 @@ function ObjectItemComponent(props: Props): JSX.Element {
                     changeColor={changeColor}
                     copy={copy}
                     remove={remove}
+                    removeLabelledAnnotations={removeLabelledAnnotations}
                     propagate={propagate}
                     createURL={createURL}
                     switchOrientation={switchOrientation}

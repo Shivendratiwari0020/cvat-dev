@@ -33,7 +33,7 @@ interface StateToProps {
     labels: any[];
     jobInstance: any;
 }
-
+//on draw start
 function mapDispatchToProps(dispatch: any): DispatchToProps {
     return {
         onDrawStart(
@@ -109,7 +109,7 @@ class DrawShapePopoverContainer extends React.PureComponent<Props, State> {
             this.minimumPoints = 1;
         }
     }
-
+// on draw
     private onDraw(objectType: ObjectType): void {
         const { canvasInstance, shapeType, onDrawStart } = this.props;
 
@@ -126,7 +126,8 @@ class DrawShapePopoverContainer extends React.PureComponent<Props, State> {
             shapeType,
             crosshair: [ShapeType.RECTANGLE, ShapeType.CUBOID, ShapeType.ELLIPSE].includes(shapeType),
         });
-
+        console.log("onDraw",shapeType, selectedLabelID, objectType, numberOfPoints, rectDrawingMethod, cuboidDrawingMethod);
+        
         onDrawStart(shapeType, selectedLabelID, objectType, numberOfPoints, rectDrawingMethod, cuboidDrawingMethod);
     }
 
@@ -145,7 +146,7 @@ class DrawShapePopoverContainer extends React.PureComponent<Props, State> {
     private onDrawShape = (): void => {
         this.onDraw(ObjectType.SHAPE);
     };
-
+// draw track
     private onDrawTrack = (): void => {
         this.onDraw(ObjectType.TRACK);
     };

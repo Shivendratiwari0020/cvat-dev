@@ -119,7 +119,21 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
         // But we do not have another way because cvat-canvas returns regular DOM element
         const [wrapper] = window.document.getElementsByClassName('cvat-canvas-container');
         wrapper.appendChild(canvasInstance.html());
+        console.log("wrapper mount data", wrapper);
+        
+        const queryString = window.location.href.split("jobs/")[1];
+        let jobID = parseInt(queryString);
+        // const getTrackID = async () => {
+        //     return await fetch(`http://localhost:8080/api/get-track-ids/${jobID}/data`)
+        //         .then((response) => response.json())
+        //         .then((data) => {
+        //             localStorage.setItem("track-ids",JSON.stringify(data.track_ids))
+        //             console.log("storing response data" ,data.track_ids);
+        //         });
+        // }
+        // getTrackID()
 
+       
         canvasInstance.configure({
             smoothImage,
             autoborders: automaticBordering,
@@ -382,7 +396,7 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
         } else {
             jobInstance.logger.log(LogType.pasteObject, { count: 1, duration });
         }
-
+        state.parentObject = state.parentObject;
         state.objectType = state.objectType || activeObjectType;
         state.label = state.label || jobInstance.labels.filter((label: any) => label.id === activeLabelID)[0];
         state.occluded = state.occluded || false;
@@ -437,6 +451,8 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
     };
 
     private fitCanvas = (): void => {
+        console.log("fitCanvas");
+        
         const { canvasInstance } = this.props;
         if (canvasInstance) {
             canvasInstance.fitCanvas();
@@ -454,6 +470,7 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
     };
 
     private onCanvasClicked = (): void => {
+        console.log("onCanvasClicked invoked");
         const { onUpdateContextMenu } = this.props;
         const { canvasInstance } = this.props as { canvasInstance: Canvas };
         onUpdateContextMenu(false, 0, 0, ContextMenuType.CANVAS_SHAPE);
@@ -477,6 +494,7 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
     };
 
     private onCanvasShapeResized = (e: any): void => {
+        console.log("onCanvasShapeResized invoked");
         const { jobInstance } = this.props;
         const { id } = e.detail;
         jobInstance.logger.log(LogType.resizeObject, { id });
@@ -513,6 +531,8 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
     };
 
     private onCanvasCursorMoved = async (event: any): Promise<void> => {
+        // console.log("onCanvasCursorMoved",event);
+        debugger;
         const {
             jobInstance, activatedStateID, workspace, onActivateObject,
         } = this.props;
@@ -522,7 +542,7 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
         }
 
         const result = await jobInstance.annotations.select(event.detail.states, event.detail.x, event.detail.y);
-
+        // console.log("onCanvasCursorMoved resukt",result);
         if (result && result.state) {
             if (result.state.shapeType === 'polyline' || result.state.shapeType === 'points') {
                 if (result.distance > MAX_DISTANCE_TO_OPEN_SHAPE) {
@@ -538,6 +558,8 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
 
     private onCanvasEditStart = (): void => {
         const { onActivateObject, onEditShape } = this.props;
+        console.log("onCanvasEditStart");
+        
         onActivateObject(null);
         onEditShape(true);
     };
@@ -648,6 +670,8 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
     }
 
     private updateShapesView(): void {
+        console.log("updateShapesView");
+        
         const {
             annotations, opacity, colorBy, outlined, outlineColor,
         } = this.props;
@@ -678,6 +702,8 @@ export default class CanvasWrapperComponent extends React.PureComponent<Props> {
     }
 
     private updateCanvas(): void {
+        console.log("updateCanvas");
+        
         const {
             curZLayer, annotations, frameData, canvasInstance,
         } = this.props;

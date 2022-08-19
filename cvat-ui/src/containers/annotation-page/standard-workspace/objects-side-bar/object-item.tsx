@@ -17,6 +17,7 @@ import {
     copyShape as copyShapeAction,
     activateObject as activateObjectAction,
     propagateObject as propagateObjectAction,
+    removeLabelledAnnotationsAsync,
 } from 'actions/annotation-actions';
 import {
     ActiveControl, CombinedState, ColorBy, ShapeType,
@@ -55,6 +56,7 @@ interface DispatchToProps {
     updateState(objectState: any): void;
     collapseOrExpand(objectStates: any[], collapsed: boolean): void;
     activateObject: (activatedStateID: number | null) => void;
+    removeLabelledAnnotations(startFrame: number, endFrame: number, delTrackKeyframesOnly: number, option: string, sessionInstance: any, objectState: any): void;
     removeObject: (sessionInstance: any, objectState: any) => void;
     copyShape: (objectState: any) => void;
     propagateObject: (objectState: any) => void;
@@ -123,6 +125,11 @@ function mapDispatchToProps(dispatch: any): DispatchToProps {
         removeObject(sessionInstance: any, objectState: any): void {
             dispatch(removeObjectAsync(sessionInstance, objectState, true));
         },
+        removeLabelledAnnotations(startFrame: number, endFrame: number, delTrackKeyframesOnly: number, option: string, sessionInstance: any, objectState: any): void {
+            console.log("removeLabelledAnnotations", startFrame, endFrame, delTrackKeyframesOnly, option, sessionInstance, objectState);
+            
+            dispatch(removeLabelledAnnotationsAsync(startFrame, endFrame, option, sessionInstance, objectState, delTrackKeyframesOnly));
+        },
         copyShape(objectState: any): void {
             dispatch(copyShapeAction(objectState));
             dispatch(pasteShapeAsync());
@@ -158,7 +165,18 @@ class ObjectItemContainer extends React.PureComponent<Props> {
         } = this.props;
 
         if (!readonly) {
-            removeObject(jobInstance, objectState);
+            removeObject();
+        }
+    };
+    private removeLabelledAnno = (startFrame: number, endFrame: number, delTrackKeyframesOnly: boolean, option: string,sessionInstance: any, objectState1: any): void => {
+        
+        const {
+            objectState, jobInstance, readonly, removeObject,removeLabelledAnnotations
+        } = this.props;
+        console.log("removeLabelledAnno invoked", startFrame, endFrame, option, sessionInstance, objectState);
+
+        if (!readonly) {
+            removeLabelledAnnotations(objectState,startFrame, endFrame, delTrackKeyframesOnly, option);
         }
     };
 
@@ -371,6 +389,7 @@ class ObjectItemContainer extends React.PureComponent<Props> {
                 collapsed={collapsed}
                 activate={this.activate}
                 remove={this.remove}
+                removeLabelledAnnotations={this.removeLabelledAnno}
                 copy={this.copy}
                 propagate={this.propagate}
                 createURL={this.createURL}

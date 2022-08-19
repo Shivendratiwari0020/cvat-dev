@@ -37,6 +37,7 @@ interface Props {
     changeLabel(label: any): void;
     copy(): void;
     remove(): void;
+    removeLabelledAnnotations(): void;
     propagate(): void;
     createURL(): void;
     switchOrientation(): void;
@@ -69,6 +70,7 @@ function ItemTopComponent(props: Props): JSX.Element {
         changeLabel,
         copy,
         remove,
+        removeLabelledAnnotations,
         propagate,
         createURL,
         switchOrientation,
@@ -93,10 +95,25 @@ function ItemTopComponent(props: Props): JSX.Element {
         setColorPickerVisible(visible);
     };
 
+    // const getTrackID = () => {
+    //     debugger
+    //     let track_ids = localStorage.getItem("track-ids");
+    //     track_ids = JSON.parse(track_ids);
+    //     let track_id = track_ids.filter((item: any) => {
+    //         if (item[serverID] !== undefined) {
+    //             return item
+    //         }
+    //     })
+    //     return track_id[0][serverID];    
+    // }
+    // let trackID = getTrackID();
+    // console.log("trackID object-->",trackID);
+    
     return (
         <Row align='middle'>
             <Col span={10}>
-                <Text style={{ fontSize: 12 }}>{clientID}</Text>
+                {/* <Text style={{ fontSize: 12 }}>{trackID ? `${trackID}` : ""}</Text> */}
+                <Text style={{ fontSize: 12 }}>hello</Text>
                 <br />
                 <Text
                     type='secondary'
@@ -107,7 +124,7 @@ function ItemTopComponent(props: Props): JSX.Element {
                 </Text>
             </Col>
             <Col span={12}>
-                <CVATTooltip title='Change current label'>
+                <CVATTooltip title='Change current label'>@
                     <LabelSelector
                         disabled={readonly}
                         size='small'
@@ -129,6 +146,7 @@ function ItemTopComponent(props: Props): JSX.Element {
                         serverID,
                         locked,
                         shapeType,
+                        labels,
                         objectType,
                         color,
                         colorBy,
@@ -143,6 +161,7 @@ function ItemTopComponent(props: Props): JSX.Element {
                         changeColor,
                         copy,
                         remove,
+                        removeLabelledAnnotations,
                         propagate,
                         createURL,
                         switchOrientation,

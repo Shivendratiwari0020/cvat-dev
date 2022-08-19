@@ -19,6 +19,7 @@ import {
     removeObjectAsync,
     changeFrameAsync,
     rememberObject,
+    removeAnnotationsAsync,
 } from 'actions/annotation-actions';
 import { Canvas } from 'cvat-canvas-wrapper';
 import { Canvas3d } from 'cvat-canvas3d-wrapper';
@@ -44,6 +45,7 @@ interface StateToProps {
 
 interface DispatchToProps {
     removeObject(jobInstance: any, objectState: any): void;
+    removeAnnotations(startFrame: number, endFrame: number, delTrackKeyframesOnly: number): void;
     createAnnotations(jobInstance: any, frame: number, objectStates: any[]): void;
     changeFrame(frame: number, fillBuffer?: boolean, frameStep?: number): void;
     onRememberObject(labelID: number): void;
@@ -84,6 +86,9 @@ function mapDispatchToProps(dispatch: ThunkDispatch<CombinedState, {}, Action>):
         removeObject(jobInstance: any, objectState: any): void {
             dispatch(removeObjectAsync(jobInstance, objectState, true));
         },
+        removeAnnotations(jobInstance: any, objectState: any): void {
+            dispatch(removeAnnotationsAsync(jobInstance, objectState, true));
+        },
         onRememberObject(labelID: number): void {
             dispatch(rememberObject({ activeObjectType: ObjectType.TAG, activeLabelID: labelID }));
         },
@@ -95,6 +100,7 @@ function TagAnnotationSidebar(props: StateToProps & DispatchToProps): JSX.Elemen
         states,
         labels,
         removeObject,
+        removeAnnotations,
         jobInstance,
         changeFrame,
         canvasInstance,
@@ -163,6 +169,8 @@ function TagAnnotationSidebar(props: StateToProps & DispatchToProps): JSX.Elemen
     };
 
     const onRemoveState = (objectState: any): void => {
+        console.log("onRemoveState", jobInstance);
+        
         removeObject(jobInstance, objectState);
     };
 

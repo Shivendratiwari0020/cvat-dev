@@ -567,8 +567,74 @@
 
             return groupIdx;
         }
+        //clear annotation
+        clearLabelledAnnotations( objectState, startframe, endframe, option) {
+            console.log("clearLabelledAnnotations this",this);
+            console.log("clearLabelledAnnotations startFrame", startframe);
+            console.log("clearLabelledAnnotations endFrame", endframe);
+            console.log("clearLabelledAnnotations objectState",objectState);
+            console.log("clearLabelledAnnotations options",option);
+            if (startframe !== undefined && endframe !== undefined) {
+                // If only a range of annotations need to be cleared
+                for (let frame = this.startFrame; frame <= this.stopFrame; frame++) {
+                    // let currObject = this.shapes;
+                    // const found = this.shapes.filter(element => element.serverID === serverID);
+                    // this.shapes[frame] = [];
+                    // this.tags[frame] = [];
+                    console.log("current shapes-->",frame,this.shapes[frame]);
+                    let checkServerID = (serverID)=>{
+                        if(serverID !== objectState.serverID)
+                        {
+                            return true
+                        }
+                        else{
+                            return false
+                        }
+                    }
+                    if(this.shapes[frame] !== undefined){
+                    let finalObject = this.shapes[frame].filter(item=>{
+                        if(checkServerID(item.serverID)){
+                            return item;
+                        }
+                    }
+                    );
+                    console.log("finalObject",finalObject)
+                    this.shapes[frame] = finalObject;
+                    }
+             
+                // const { tracks } = this;
+                }
+                // tracks.forEach((track) => {
+                //     if (track.frame <= endframe) {
+                //         if (delTrackKeyframesOnly) {
+                //             for (const keyframe in track.shapes) {
+                //                 if (keyframe >= startframe && keyframe <= endframe) { delete track.shapes[keyframe]; }
+                //             }
+                //         } else if (track.frame >= startframe) {
+                //             const index = tracks.indexOf(track);
+                //             if (index > -1) { tracks.splice(index, 1); }
+                //         }
+                //     }
+                // }
+                // );
+            } else if (startframe === undefined && endframe === undefined) {
+                // If all annotations need to be cleared
+                this.shapes = {};
+                this.tags = {};
+                this.tracks = [];
+                this.objects = {}; // by id
+                this.count = 0;
+
+                this.flush = true;
+            } else {
+                // If inputs provided were wrong
+                throw Error('Could not remove the annotations, please provide both inputs or' +
+                    ' leave the inputs below empty to remove all the annotations from this job');
+            }
+        }
 
         clear(startframe, endframe, delTrackKeyframesOnly) {
+            console.log("INVOKING CLEAR",this,startframe, endframe, delTrackKeyframesOnly);
             if (startframe !== undefined && endframe !== undefined) {
                 // If only a range of annotations need to be cleared
                 for (let frame = startframe; frame <= endframe; frame++) {
@@ -850,8 +916,9 @@
 
             return importedArray.map((value) => value.clientID);
         }
-
+        //select annotations
         select(objectStates, x, y) {
+            // console.log("select from collection invoked",objectStates, x, y);
             checkObjectType('shapes for select', objectStates, null, Array);
             checkObjectType('x coordinate', x, 'number', null);
             checkObjectType('y coordinate', y, 'number', null);

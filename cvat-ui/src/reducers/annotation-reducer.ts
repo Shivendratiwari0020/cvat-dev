@@ -89,6 +89,7 @@ const defaultState: AnnotationState = {
         states: [],
         filters: [],
         resetGroupFlag: false,
+        // parentID : 0,
         history: {
             undo: [],
             redo: [],
@@ -344,7 +345,7 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
         case AnnotationActionTypes.SAVE_ANNOTATIONS_SUCCESS: {
             const { states } = action.payload;
             const { activatedStateID } = state.annotations;
-
+            console.log("SAVE_ANNOTATIONS_SUCCESS",state, activatedStateID);
             return {
                 ...state,
                 annotations: {
@@ -485,12 +486,13 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
             } else if (payload.activeObjectType === ObjectType.TAG) {
                 activeControl = ActiveControl.CURSOR;
             }
+            
 
             return {
                 ...state,
                 annotations: {
                     ...state.annotations,
-                    activatedStateID: null,
+                    activatedStateID: state.annotations.activatedStateID,
                 },
                 canvas: {
                     ...state.canvas,
@@ -635,13 +637,14 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
         }
         case AnnotationActionTypes.CREATE_ANNOTATIONS_SUCCESS: {
             const { states, history } = action.payload;
-
+            console.log("cRREATE_ANNOTATIONS__SUCCESS", states, history);
             return {
                 ...state,
                 annotations: {
                     ...state.annotations,
                     states,
                     history,
+                    // parentID: 2,
                 },
             };
         }
@@ -723,7 +726,7 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
             const { objectState, history } = action.payload;
             const contextMenuClientID = state.canvas.contextMenu.clientID;
             const contextMenuVisible = state.canvas.contextMenu.visible;
-
+           
             return {
                 ...state,
                 annotations: {
@@ -745,7 +748,26 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
             };
         }
         case AnnotationActionTypes.PASTE_SHAPE: {
-            const { activeControl } = action.payload;
+            let { activeControl, activatedStateID, activatedAttributeID } = action.payload;
+            console.log("PASTE_SHAPE Reducer",activatedStateID, activeControl, state);
+            
+            const { payload } = action;
+
+            if (payload.activeShapeType === ShapeType.RECTANGLE) {
+                activeControl = ActiveControl.DRAW_RECTANGLE;
+            } else if (payload.activeShapeType === ShapeType.POLYGON) {
+                activeControl = ActiveControl.DRAW_POLYGON;
+            } else if (payload.activeShapeType === ShapeType.POLYLINE) {
+                activeControl = ActiveControl.DRAW_POLYLINE;
+            } else if (payload.activeShapeType === ShapeType.POINTS) {
+                activeControl = ActiveControl.DRAW_POINTS;
+            } else if (payload.activeShapeType === ShapeType.ELLIPSE) {
+                activeControl = ActiveControl.DRAW_ELLIPSE;
+            } else if (payload.activeShapeType === ShapeType.CUBOID) {
+                activeControl = ActiveControl.DRAW_CUBOID;
+            } else if (payload.activeObjectType === ObjectType.TAG) {
+                activeControl = ActiveControl.CURSOR;
+            }
 
             return {
                 ...state,
@@ -755,13 +777,20 @@ export default (state = defaultState, action: AnyAction): AnnotationState => {
                 },
                 annotations: {
                     ...state.annotations,
-                    activatedStateID: null,
+                    activatedStateID: state.annotations.activatedStateID,
+                    // activatedAttributeID
+                },
+                drawing: {
+                    ...state.drawing,
+                    ...payload,
+                    activeInteractor: undefined,
                 },
             };
         }
         case AnnotationActionTypes.COPY_SHAPE: {
             const { objectState } = action.payload;
-
+            console.log("COPY_SHAPE reducer",objectState);
+            
             return {
                 ...state,
                 drawing: {

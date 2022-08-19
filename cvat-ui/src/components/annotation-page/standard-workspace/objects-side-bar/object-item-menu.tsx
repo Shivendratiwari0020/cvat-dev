@@ -2,14 +2,16 @@
 //
 // SPDX-License-Identifier: MIT
 
-import React from 'react';
+import React, { useState } from 'react';
 import Menu from 'antd/lib/menu';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
+import { Row, Col } from 'antd/lib/grid';
+import { Radio } from "antd";
 import Icon, {
     LinkOutlined, CopyOutlined, BlockOutlined, RetweetOutlined, DeleteOutlined,
 } from '@ant-design/icons';
-
+// import { DeleteOutlined } from "@ant-design/icons";
 import {
     BackgroundIcon, ForegroundIcon, ResetPerspectiveIcon, ColorizeIcon,
 } from 'icons';
@@ -18,6 +20,8 @@ import {
     ObjectType, ShapeType, ColorBy, DimensionType,
 } from 'reducers/interfaces';
 import ColorPicker from './color-picker';
+import DeleteAnnotationContainer from './delete-annotation-container';
+import { removeLabelledAnnotationsAsync } from 'actions/annotation-actions';
 
 interface Props {
     readonly: boolean;
@@ -35,9 +39,13 @@ interface Props {
     toBackgroundShortcut: string;
     toForegroundShortcut: string;
     removeShortcut: string;
+    option: string;
+    startFrame: number;
+    endFrame: number;
     changeColor(value: string): void;
     copy(): void;
     remove(): void;
+    removeLabelledAnnotations(): void
     propagate(): void;
     createURL(): void;
     switchOrientation(): void;
@@ -46,6 +54,7 @@ interface Props {
     resetCuboidPerspective(): void;
     changeColorPickerVisible(visible: boolean): void;
     jobInstance: any;
+    labels: any;
 }
 
 interface ItemProps {
@@ -178,8 +187,38 @@ function SwitchColorItem(props: ItemProps): JSX.Element {
 }
 
 function RemoveItem(props: ItemProps): JSX.Element {
+
+    const [option, setOption] = useState<string>("current-frame");
+    const [startFrame, setStartFrame] = useState<number>(0);
+    const [endFrame, setEndFrame] = useState<number>(0);
     const { toolProps, ...rest } = props;
-    const { removeShortcut, locked, remove } = toolProps;
+    const { removeShortcut, locked, remove, removeLabelledAnnotations } = toolProps;
+    
+    const handleRemoveAnnotation = () : void =>{
+        console.log("handleRemoveAnnotation invoked with option", option, props);
+       removeLabelledAnnotations(startFrame, endFrame, true, option)
+        
+    }
+
+    const handleOptionSelect = (e: Object): any => {  
+        setOption(e.target.value);
+        console.log("option selected ",e.target.value);
+    }
+    const handleRangeSelect = (e: Object, order: string): any => {  
+        console.log("range selected ",order,e.target.value, e);
+        switch (order){
+            case "start":
+                setStartFrame(e.target.value);
+                break;
+            case "end":
+                setEndFrame(e.target.value);
+                break;
+            default:
+                break;
+        } 
+        // setOption(e.target.value);
+    }
+    
     return (
         <Menu.Item {...rest}>
             <CVATTooltip title={`${removeShortcut}`}>
@@ -187,18 +226,52 @@ function RemoveItem(props: ItemProps): JSX.Element {
                     type='link'
                     icon={<DeleteOutlined />}
                     onClick={(): void => {
-                        if (locked) {
-                            Modal.confirm({
-                                className: 'cvat-modal-confirm',
-                                title: 'Object is locked',
-                                content: 'Are you sure you want to remove it?',
-                                onOk() {
-                                    remove();
-                                },
-                            });
-                        } else {
-                            remove();
-                        }
+                        Modal.info({
+                            className: 'cvat-modal-confirm',
+                            title: 'Delete Annotation',
+                            onOk() {
+                                if (locked) {
+                                    Modal.confirm({
+                                        className: 'cvat-modal-confirm',
+                                        title: 'Object is locked',
+                                        content: 'Are you sure you want to remove it?',
+                                        onOk() {
+                                            remove();
+                                        },
+                                    });
+                                } else {
+                                    handleRemoveAnnotation();
+                                }
+                            },
+                            content: 
+                            (
+                                <>                                
+                                    <Row align='middle' justify='space-between'>
+                                        <div className="delete-head">
+                                            <p>Single ROI for deletion</p>
+                                        </div>
+                                        <Radio.Group
+                                        className="radio-container"
+                                        onChange={handleOptionSelect}
+                                        // value={option}
+                                        >
+                                            <Radio value={"current-frame"}>Current Frame</Radio>
+                                            <Radio value={"current-frame-to-end-frame"}>Current Frame to End Frame</Radio>
+                                            <Radio value={"start-frame-to-current-frame"}>Start Frame to Current Frame</Radio>
+                                            <Radio value={"start-frame-to-end-frame"}>Start Frame to End Frame</Radio>
+                                            <Radio value={"custom-range"}>
+                                                Enter Start Frame &nbsp;
+                                                <input type="number" className="start-range frame-range" onChange={e=>handleRangeSelect(e, "start")} /> to End
+                                                &nbsp;Frame &nbsp;
+                                                <input type="number" className="end-range frame-range" onChange={e=>handleRangeSelect(e, "end")} />
+                                            </Radio>
+                                        </Radio.Group>
+                                    </Row>
+                                </>
+
+                            ),
+                        });
+                        
                     }}
                 >
                     Remove
@@ -210,7 +283,7 @@ function RemoveItem(props: ItemProps): JSX.Element {
 
 export default function ItemMenu(props: Props): JSX.Element {
     const {
-        readonly, shapeType, objectType, colorBy, jobInstance,
+        readonly, shapeType, objectType, colorBy, jobInstance,labels
     } = props;
 
     enum MenuKeys {
@@ -229,6 +302,7 @@ export default function ItemMenu(props: Props): JSX.Element {
 
     return (
         <Menu className='cvat-object-item-menu' selectable={false}>
+            #
             <CreateURLItem key={MenuKeys.CREATE_URL} toolProps={props} />
             {!readonly && <MakeCopyItem key={MenuKeys.COPY} toolProps={props} />}
             {!readonly && <PropagateItem key={MenuKeys.PROPAGATE} toolProps={props} />}

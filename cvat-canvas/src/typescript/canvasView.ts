@@ -942,6 +942,21 @@ export class CanvasViewImpl implements CanvasView, Listener {
     }
 
     private onShiftKeyDown = (e: KeyboardEvent): void => {
+        console.log("onShiftKeyDown",e.code,e);
+        
+        // var map = [];
+        // onkeydown = onkeyup = function(e){
+            // e = e || event; // to deal with IE
+            // map[e.keyCode] = e.type == 'keydown';
+
+            // if(map[17] && map[16] && map[65]){ // CTRL+SHIFT+A
+            //     alert('Control Shift A');
+            // }else if(map[17] && map[16] && map[66]){ // CTRL+SHIFT+B
+            //     alert('Control Shift B');
+            // }else if(map[17] && map[16] && map[67]){ // CTRL+SHIFT+C
+            //     alert('Control Shift C');
+            // }
+        // 
         if (!e.repeat && e.code.toLowerCase().includes('shift')) {
             this.snapToAngleResize = consts.SNAP_TO_ANGLE_RESIZE_SHIFT;
             if (this.activeElement) {
@@ -954,6 +969,7 @@ export class CanvasViewImpl implements CanvasView, Listener {
     };
 
     private onShiftKeyUp = (e: KeyboardEvent): void => {
+        console.log("onShiftKeyUp");
         if (e.code.toLowerCase().includes('shift') && this.activeElement) {
             this.snapToAngleResize = consts.SNAP_TO_ANGLE_RESIZE_DEFAULT;
             if (this.activeElement) {
@@ -966,6 +982,7 @@ export class CanvasViewImpl implements CanvasView, Listener {
     };
 
     private onMouseUp = (event: MouseEvent): void => {
+        console.log("onMouseUp", event);
         if (event.button === 0 || event.button === 1) {
             this.controller.disableDrag();
         }
@@ -1143,8 +1160,37 @@ export class CanvasViewImpl implements CanvasView, Listener {
         });
 
         window.document.addEventListener('mouseup', this.onMouseUp);
-        window.document.addEventListener('keydown', this.onShiftKeyDown);
-        window.document.addEventListener('keyup', this.onShiftKeyUp);
+        
+        //keyboard cntrl+ arrow event listener
+        let keysPressed = {};
+        window.document.addEventListener('keydown', (e) => {
+            let dummyX = 1061.62890625;
+            let dummyY = 622.6708984375;
+            keysPressed[e.key] = true;
+            if (keysPressed['Control'] && e.key == 'ArrowRight') {
+                console.log("Control+ArrowRight event generated",this.controller,e);
+                const { offset } = this.controller.geometry;
+                dummyY = dummyY+2;
+                const [x, y] = translateToSVG(this.content, [dummyX, dummyY]);
+                this.controller.drag(dummyX, dummyY);
+                const event: CustomEvent = new CustomEvent('canvas.moved', {
+                    bubbles: false,
+                    cancelable: true,
+                    detail: {
+                        x: dummyX- offset,
+                        y: dummyY- offset,
+                        states: this.controller.objects,
+                    },
+                });
+                this.canvas.dispatchEvent(event);
+            }
+         });
+         
+         window.document.addEventListener('keyup', (event) => {
+            delete keysPressed[event.key];
+         });
+        // window.document.addEventListener('keydown', this.onShiftKeyDown);
+        // window.document.addEventListener('keyup', this.onShiftKeyUp);
 
         this.content.addEventListener('wheel', (event): void => {
             if (event.ctrlKey) return;
@@ -1161,6 +1207,7 @@ export class CanvasViewImpl implements CanvasView, Listener {
         });
 
         this.content.addEventListener('mousemove', (e): void => {
+            // console.log("mousemove event generated",e);
             this.controller.drag(e.clientX, e.clientY);
 
             if (this.mode !== Mode.IDLE) return;
@@ -1181,11 +1228,35 @@ export class CanvasViewImpl implements CanvasView, Listener {
             this.canvas.dispatchEvent(event);
         });
 
+        // keyboard event for cntrl + arrow
+        // this.content.addEventListener('keypress', (e): void => {
+        //     this.controller.drag(e.clientX, e.clientY);
+
+        //     if (this.mode !== Mode.IDLE) return;
+        //     if (e.ctrlKey || e.altKey) return;
+
+        //     const { offset } = this.controller.geometry;
+        //     const [x, y] = translateToSVG(this.content, [e.clientX, e.clientY]);
+        //     const event: CustomEvent = new CustomEvent('canvas.moved', {
+        //         bubbles: false,
+        //         cancelable: true,
+        //         detail: {
+        //             x: x - offset,
+        //             y: y - offset,
+        //             states: this.controller.objects,
+        //         },
+        //     });
+
+        //     this.canvas.dispatchEvent(event);
+        // });
+
         this.content.oncontextmenu = (): boolean => false;
         model.subscribe(this);
     }
 
     public notify(model: CanvasModel & Master, reason: UpdateReasons): void {
+        console.log("Notification Invoked", reason);
+        
         this.geometry = this.controller.geometry;
         if (reason === UpdateReasons.CONFIG_UPDATED) {
             const { activeElement } = this;
@@ -1624,6 +1695,8 @@ export class CanvasViewImpl implements CanvasView, Listener {
     }
 
     private updateObjects(states: any[]): void {
+        console.log("updateObjects invoked",states);
+        
         for (const state of states) {
             const { clientID } = state;
             const drawnState = this.drawnStates[clientID];
@@ -1922,6 +1995,8 @@ export class CanvasViewImpl implements CanvasView, Listener {
     }
 
     private activateShape(clientID: number): void {
+        console.log("activateShape in canvasView", clientID);
+        
         const [state] = this.controller.objects.filter((_state: any): boolean => _state.clientID === clientID);
 
         if (state && state.shapeType === 'points') {
@@ -1976,6 +2051,8 @@ export class CanvasViewImpl implements CanvasView, Listener {
             (shape as any)
                 .draggable()
                 .on('dragstart', (): void => {
+                    console.log("dragging initiated");
+                    
                     this.mode = Mode.DRAG;
                     hideText();
                     (shape as any).on('remove.drag', (): void => {
@@ -2043,19 +2120,25 @@ export class CanvasViewImpl implements CanvasView, Listener {
         let resized = false;
 
         const resizeFinally = (): void => {
+            console.log("resizeFinally invoked");
+            
             if (shapeSizeElement) {
                 shapeSizeElement.rm();
                 shapeSizeElement = null;
             }
             this.mode = Mode.IDLE;
         };
-
+        console.log("Shape to resize",shape);
+        
         (shape as any)
             .resize({
                 snapToGrid: 0.1,
                 snapToAngle: this.snapToAngleResize,
             })
             .on('resizestart', (): void => {
+                debugger;
+                console.log("resize star");
+                
                 this.mode = Mode.RESIZE;
                 resized = false;
                 hideDirection();
@@ -2065,11 +2148,13 @@ export class CanvasViewImpl implements CanvasView, Listener {
                 }
                 (shape as any).on('remove.resize', () => {
                     // disable internal resize events of SVG.js
+                    window.dispatchEvent(new KeyboardEvent('keydown'));
                     window.dispatchEvent(new MouseEvent('mouseup'));
                     resizeFinally();
                 });
             })
             .on('resizing', (): void => {
+                console.log("resizing event");
                 resized = true;
                 if (shapeSizeElement) {
                     shapeSizeElement.update(shape);
@@ -2124,6 +2209,8 @@ export class CanvasViewImpl implements CanvasView, Listener {
     }
 
     private activate(activeElement: ActiveElement): void {
+        console.log("activate in canvasView",activeElement);
+        
         // Check if another element have been already activated
         if (this.activeElement.clientID !== null) {
             if (this.activeElement.clientID !== activeElement.clientID) {
@@ -2248,16 +2335,41 @@ export class CanvasViewImpl implements CanvasView, Listener {
 
         const textFontSize = this.configuration.textFontSize || 12;
         const {
-            label, clientID, attributes, source, descriptions,
+            label, serverID, clientID, attributes, source, descriptions,
         } = state;
+        
         const attrNames = label.attributes.reduce((acc: any, val: any): void => {
             acc[val.id] = val.name;
             return acc;
         }, {});
+        
+        
+        // const getDimentions = (points:any)=>{
+        //     let height = points[2] - points[0];
+        //     let width = points[3] - points[1]
+        //     return `${Math.round(height)}X${Math.round(width)}`
+        // }
+        
+    //     const getTrackID = () => {
+    //         let track_ids = localStorage.getItem("track-ids");
+    //         track_ids = JSON.parse(track_ids);
+    //         let track_id = track_ids.filter((item: any) => {
+    //             if (item[serverID] !== undefined) {
+    //                 return item
+    //             }
+    //         })
+    //         return track_id[0][serverID];
+        
+    //     }
+    //   //  let trackID = getTrackID();
+
+    //     }
+    //     let trackID = getTrackID();
+    //     console.log("addText method", trackID, state.serverID);
 
         return this.adoptedText
             .text((block): void => {
-                block.tspan(`${withLabel ? label.name : ''} ${withID ? clientID : ''} ${withSource ? `(${source})` : ''}`).style({
+                block.tspan(`${withLabel ? label.name : ''} ${withID ? (``) : ''} ${withSource ? `(${source})` : ''}`).style({
                     'text-transform': 'uppercase',
                 });
                 if (withDescriptions) {

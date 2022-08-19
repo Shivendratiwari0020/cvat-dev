@@ -39,6 +39,8 @@ export class InteractionHandlerImpl implements InteractionHandler {
     private thresholdWasModified: boolean;
 
     private prepareResult(): InteractionResult[] {
+        console.log("prepareResult");
+        
         return this.interactionShapes.map(
             (shape: SVG.Shape): InteractionResult => {
                 if (shape.type === 'circle') {
@@ -104,6 +106,7 @@ export class InteractionHandlerImpl implements InteractionHandler {
 
     private interactPoints(): void {
         const eventListener = (e: MouseEvent): void => {
+            console.log("interact points");
             if ((e.button === 0 || (e.button === 2 && this.interactionData.minNegVertices >= 0)) && !e.altKey) {
                 e.preventDefault();
                 const [cx, cy] = translateToSVG((this.canvas.node as any) as SVGSVGElement, [e.clientX, e.clientY]);
@@ -363,7 +366,8 @@ export class InteractionHandlerImpl implements InteractionHandler {
     }
 
     private onKeyUp = (e: KeyboardEvent): void => {
-        if (this.interactionData.enabled && e.keyCode === 17) {
+        console.log("onKeyUp cntrl",e);
+        if (this.interactionData.enabled && e.keyCode === 17) { 
             if (this.interactionData.onChangeToolsBlockerState && !this.thresholdWasModified) {
                 this.interactionData.onChangeToolsBlockerState('keyup');
             }
@@ -395,6 +399,8 @@ export class InteractionHandlerImpl implements InteractionHandler {
         configuration: Configuration,
     ) {
         this.onInteraction = (shapes: InteractionResult[] | null, shapesUpdated?: boolean, isDone?: boolean): void => {
+            console.log("onInteraction");
+            
             this.shapesWereUpdated = false;
             onInteraction(shapes, shapesUpdated, isDone, this.threshold ? this.thresholdRectSize / 2 : null);
         };
@@ -415,7 +421,38 @@ export class InteractionHandlerImpl implements InteractionHandler {
             y: 0,
         };
 
+        this.canvas.on('keyboard.interaction', (e:KeyboardEvent): void => {
+            console.log('keyboard.interaction',e);
+            const [x, y] = translateToSVG((this.canvas.node as any) as SVGSVGElement, [200,700]);
+            this.cursorPosition = { x, y };
+            if (this.crosshair) {
+                this.crosshair.move(x, y);
+            }
+            if (this.threshold) {
+                this.threshold.center(x, y);
+            }
+            if (this.interactionData.enableSliding && this.interactionShapes.length) {
+                if (this.isWithinFrame(x, y)) {
+                    if (this.interactionData.enableThreshold && !this.isWithinThreshold(x, y)) return;
+                    this.onInteraction(
+                        [
+                            ...this.prepareResult(),
+                            {
+                                points: [x - this.geometry.offset, y - this.geometry.offset],
+                                shapeType: 'points',
+                                button: 0,
+                            },
+                        ],
+                        true,
+                        false,
+                    );
+                }
+            }
+        });
+
         this.canvas.on('mousemove.interaction', (e: MouseEvent): void => {
+            // console.log('mousemove.interaction',e);
+            
             const [x, y] = translateToSVG((this.canvas.node as any) as SVGSVGElement, [e.clientX, e.clientY]);
             this.cursorPosition = { x, y };
             if (this.crosshair) {

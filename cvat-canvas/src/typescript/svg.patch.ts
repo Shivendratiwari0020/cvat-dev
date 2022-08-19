@@ -476,6 +476,8 @@ function getTopDown(edgeIndex: EdgeIndex): number[] {
 
             this.face
                 .on('resizestart', (event: CustomEvent) => {
+                    console.log("resizestart event invoked",event);
+                    
                     accumulatedOffset.x = 0;
                     accumulatedOffset.y = 0;
                     const resizedFacePoint = getResizedPointIndex(event);

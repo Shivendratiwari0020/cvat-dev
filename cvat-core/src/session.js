@@ -43,6 +43,14 @@
                         );
                         return result;
                     },
+                    async clearLabelledAnnotations(
+                        reload = false, startframe = undefined, endframe = undefined, delTrackKeyframesOnly = true,
+                    ) {
+                        const result = await PluginRegistry.apiWrapper.call(
+                            this, prototype.annotations.clear, reload, startframe, endframe, delTrackKeyframesOnly,
+                        );
+                        return result;
+                    },
 
                     async statistics() {
                         const result = await PluginRegistry.apiWrapper.call(this, prototype.annotations.statistics);
@@ -222,6 +230,10 @@
                         const result = await PluginRegistry.apiWrapper.call(this, prototype.actions.clear);
                         return result;
                     },
+                    async clearLabelledAnnotations() {
+                        const result = await PluginRegistry.apiWrapper.call(this, prototype.actions.clear);
+                        return result;
+                    },
                     async get() {
                         const result = await PluginRegistry.apiWrapper.call(this, prototype.actions.get);
                         return result;
@@ -313,6 +325,18 @@
             /**
              * Remove all annotations and optionally reinitialize it
              * @method clear
+             * @memberof Session.annotations
+             * @param {boolean} [reload = false] reset all changes and
+             * reinitialize annotations by data from a server
+             * @throws {module:API.cvat.exceptions.PluginError}
+             * @throws {module:API.cvat.exceptions.ArgumentError}
+             * @throws {module:API.cvat.exceptions.ServerError}
+             * @instance
+             * @async
+             */
+              /**
+             * Remove all annotations and optionally reinitialize it
+             * @method clearLabelledAnnotations
              * @memberof Session.annotations
              * @param {boolean} [reload = false] reset all changes and
              * reinitialize annotations by data from a server
@@ -964,6 +988,7 @@
                 split: Object.getPrototypeOf(this).annotations.split.bind(this),
                 group: Object.getPrototypeOf(this).annotations.group.bind(this),
                 clear: Object.getPrototypeOf(this).annotations.clear.bind(this),
+                clearLabelledAnnotations: Object.getPrototypeOf(this).annotations.clearLabelledAnnotations.bind(this),
                 search: Object.getPrototypeOf(this).annotations.search.bind(this),
                 searchEmpty: Object.getPrototypeOf(this).annotations.searchEmpty.bind(this),
                 upload: Object.getPrototypeOf(this).annotations.upload.bind(this),
@@ -980,6 +1005,7 @@
                 redo: Object.getPrototypeOf(this).actions.redo.bind(this),
                 freeze: Object.getPrototypeOf(this).actions.freeze.bind(this),
                 clear: Object.getPrototypeOf(this).actions.clear.bind(this),
+                clearLabelledAnnotations: Object.getPrototypeOf(this).actions.clearLabelledAnnotations.bind(this),
                 get: Object.getPrototypeOf(this).actions.get.bind(this),
             };
 
@@ -1677,6 +1703,7 @@
                 split: Object.getPrototypeOf(this).annotations.split.bind(this),
                 group: Object.getPrototypeOf(this).annotations.group.bind(this),
                 clear: Object.getPrototypeOf(this).annotations.clear.bind(this),
+                clearLabelledAnnotations: Object.getPrototypeOf(this).annotations.clearLabelledAnnotations.bind(this),
                 search: Object.getPrototypeOf(this).annotations.search.bind(this),
                 searchEmpty: Object.getPrototypeOf(this).annotations.searchEmpty.bind(this),
                 upload: Object.getPrototypeOf(this).annotations.upload.bind(this),
@@ -1977,6 +2004,12 @@
     };
 
     Job.prototype.annotations.clear.implementation = async function (
+        reload, startframe, endframe, delTrackKeyframesOnly,
+    ) {
+        const result = await clearAnnotations(this, reload, startframe, endframe, delTrackKeyframesOnly);
+        return result;
+    };
+    Job.prototype.annotations.clearLabelledAnnotations.implementation = async function (
         reload, startframe, endframe, delTrackKeyframesOnly,
     ) {
         const result = await clearAnnotations(this, reload, startframe, endframe, delTrackKeyframesOnly);
@@ -2313,6 +2346,10 @@
         return result;
     };
 
+    Task.prototype.annotations.clearLabelledAnnotations.implementation = async function (reload) {
+        const result = await clearAnnotations(this, reload);
+        return result;
+    };
     Task.prototype.annotations.clear.implementation = async function (reload) {
         const result = await clearAnnotations(this, reload);
         return result;

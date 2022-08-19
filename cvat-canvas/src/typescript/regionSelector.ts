@@ -25,6 +25,7 @@ export class RegionSelectorImpl implements RegionSelector {
     };
 
     private getSelectionBox(event: MouseEvent): { xtl: number; ytl: number; xbr: number; ybr: number } {
+        console.log("getSelectionBox", event);
         const point = translateToSVG((this.canvas.node as any) as SVGSVGElement, [event.clientX, event.clientY]);
         const stopSelectionPoint = {
             x: point[0],
@@ -40,6 +41,7 @@ export class RegionSelectorImpl implements RegionSelector {
     }
 
     private onMouseMove = (event: MouseEvent): void => {
+        console.log("onMouseMove", event);
         if (this.selectionRect) {
             const box = this.getSelectionBox(event);
 
@@ -87,6 +89,7 @@ export class RegionSelectorImpl implements RegionSelector {
     };
 
     private startSelection(): void {
+        console.log("startSelection");      
         this.canvas.node.addEventListener('mousemove', this.onMouseMove);
         this.canvas.node.addEventListener('mousedown', this.onMouseDown);
         this.canvas.node.addEventListener('mouseup', this.onMouseUp);

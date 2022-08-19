@@ -2256,3 +2256,16 @@ def _import_project_dataset(request, rq_id, rq_func, pk, format_name):
 
     return Response(status=status.HTTP_202_ACCEPTED)
 
+
+class GetTrackIds(viewsets.ViewSet):
+
+    @action(detail=True, methods=['GET', 'OPTIONS', 'POST','PUT'])
+    def data(self,request,pk):
+        job = models.LabeledTrack.objects.filter(job_id=pk)
+        data = []
+        counter = 0
+        for item in job.values_list('id'):
+            data.append({item[0]:counter})
+            counter = counter +1
+        # data = [i[0] for i in job.values_list('id')]
+        return Response({"track_ids":data})

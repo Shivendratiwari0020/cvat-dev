@@ -15,6 +15,7 @@ import {
     changeGroupColorAsync,
     copyShape as copyShapeAction,
     propagateObject as propagateObjectAction,
+    removeAnnotationsAsync,
 } from 'actions/annotation-actions';
 import isAbleToChangeFrame from 'utils/is-able-to-change-frame';
 import {
@@ -47,6 +48,7 @@ interface DispatchToProps {
     updateAnnotations(states: any[]): void;
     collapseStates(states: any[], value: boolean): void;
     removeObject: (sessionInstance: any, objectState: any, force: boolean) => void;
+    removeAnnotations: (startFrame: number, endFrame: number, delTrackKeyframesOnly: boolean, option: string) => void;
     copyShape: (objectState: any) => void;
     propagateObject: (objectState: any) => void;
     changeFrame(frame: number): void;
@@ -118,6 +120,9 @@ function mapDispatchToProps(dispatch: any): DispatchToProps {
         },
         removeObject(sessionInstance: any, objectState: any, force: boolean): void {
             dispatch(removeObjectAsync(sessionInstance, objectState, force));
+        },
+        removeAnnotations(startFrame: number, endFrame: number, delTrackKeyframesOnly: boolean, option: string): void {
+            dispatch(removeAnnotationsAsync(startFrame, endFrame, delTrackKeyframesOnly, option))
         },
         copyShape(objectState: any): void {
             dispatch(copyShapeAction(objectState));
@@ -260,6 +265,7 @@ class ObjectsListContainer extends React.PureComponent<Props, State> {
             updateAnnotations,
             changeGroupColor,
             removeObject,
+            removeAnnotations,
             copyShape,
             propagateObject,
             changeFrame,
@@ -414,6 +420,8 @@ class ObjectsListContainer extends React.PureComponent<Props, State> {
                 }
             },
             COPY_SHAPE: (event: KeyboardEvent | undefined) => {
+                console.log("Copy_SHAPE Keyboard event",event);
+                
                 preventDefault(event);
                 const state = activatedStated();
                 if (state && !readonly) {

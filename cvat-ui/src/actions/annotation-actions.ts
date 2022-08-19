@@ -309,14 +309,75 @@ export function updateCanvasContextMenu(
 }
 
 export function removeAnnotationsAsync(
-    startFrame: number, endFrame: number, delTrackKeyframesOnly: boolean,
+    startFrame: number, endFrame: number, delTrackKeyframesOnly: boolean, option: string,
 ): ThunkAction {
     return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
         try {
+            
             const {
                 filters, frame, showAllInterpolationTracks, jobInstance,
             } = receiveAnnotationsParameters();
-            await jobInstance.annotations.clear(false, startFrame, endFrame, delTrackKeyframesOnly);
+            
+           
+            
+            await jobInstance.actions.clear();
+            const history = await jobInstance.actions.get();
+            const states = await jobInstance.annotations.get(frame, showAllInterpolationTracks, filters);
+
+            dispatch({
+                type: AnnotationActionTypes.REMOVE_JOB_ANNOTATIONS_SUCCESS,
+                payload: {
+                    history,
+                    states,
+                },
+            });
+        } catch (error) {
+            dispatch({
+                type: AnnotationActionTypes.REMOVE_JOB_ANNOTATIONS_FAILED,
+                payload: {
+                    error,
+                },
+            });
+        }
+    };
+}
+export function removeLabelledAnnotationsAsync(
+    objectState: any, endFrame: number, delTrackKeyframesOnly: boolean, option: string,sessionInstance: any, startFrame: number
+): ThunkAction {
+    return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+        try {
+            
+            const {
+                filters, frame, showAllInterpolationTracks, jobInstance,
+            } = receiveAnnotationsParameters();
+            let optionTest ="current-frame"
+            console.log("removeLabelledAnnotationsAsync invoked",startFrame, objectState, jobInstance, option, jobInstance?.startFrame, frame, jobInstance?.stopFrame);
+            switch (optionTest) {
+                case "current-frame":
+                    console.log("removing annotations between",frame, frame);
+                    await jobInstance?.annotations.clearLabelledAnnotations(false, objectState, frame, frame, option);
+                    break;
+                case "current-frame-to-end-frame":
+                    console.log("removing annotations between",frame, jobInstance?.stopFrame);
+                    await jobInstance?.annotations.clearLabelledAnnotations(false, objectState, frame, jobInstance?.stopFrame, delTrackKeyframesOnly);
+                    break;
+                case "start-frame-to-current-frame":
+                    console.log("removing annotations between",jobInstance?.startFrame, frame);
+                    await jobInstance?.annotations.clearLabelledAnnotations(false, objectState, jobInstance?.startFrame, frame, delTrackKeyframesOnly);
+                    break;
+                case "start-frame-to-end-frame":
+                    console.log("removing annotations between",jobInstance?.startFrame, jobInstance?.stopFrame);
+                    await jobInstance?.annotations.clearLabelledAnnotations(false, objectState, jobInstance?.startFrame, jobInstance?.stopFrame, delTrackKeyframesOnly);
+                    break;
+                case "custom-range":
+                    console.log("removing annotations between",startFrame, endFrame);
+                    await jobInstance?.annotations.clearLabelledAnnotations(false, objectState, startFrame, endFrame, delTrackKeyframesOnly);
+                    break;
+                default:
+                    console.log("need to choose atleast one option");
+                    break;
+            }
+            
             await jobInstance.actions.clear();
             const history = await jobInstance.actions.get();
             const states = await jobInstance.annotations.get(frame, showAllInterpolationTracks, filters);
@@ -516,8 +577,11 @@ export function changePropagateFrames(frames: number): AnyAction {
 export function removeObjectAsync(sessionInstance: any, objectState: any, force: boolean): ThunkAction {
     return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
         try {
+            console.log("deletion invoked");
+            
             await sessionInstance.logger.log(LogType.deleteObject, { count: 1 });
             const { frame } = receiveAnnotationsParameters();
+            console.log("frame to be deleted",frame, objectState, force);
 
             const removed = await objectState.delete(frame, force);
             const history = await sessionInstance.actions.get();
@@ -1144,6 +1208,7 @@ export function saveAnnotationsAsync(sessionInstance: any, afterSave?: () => voi
                     states,
                 },
             });
+            
         } catch (error) {
             dispatch({
                 type: AnnotationActionTypes.SAVE_ANNOTATIONS_FAILED,
@@ -1254,11 +1319,14 @@ export function updateAnnotationsAsync(statesToUpdate: any[]): ThunkAction {
 
 export function createAnnotationsAsync(sessionInstance: any, frame: number, statesToCreate: any[]): ThunkAction {
     return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+       await dispatch(saveAnnotationsAsync(sessionInstance));
+       console.log("createAnnotationsAsync and    saveAnnotationsAsyncsaveAnnotationsAsync")
         try {
             const { filters, showAllInterpolationTracks } = receiveAnnotationsParameters();
             await sessionInstance.annotations.put(statesToCreate);
             const states = await sessionInstance.annotations.get(frame, showAllInterpolationTracks, filters);
             const history = await sessionInstance.actions.get();
+            console.log("createAnnotationsAsync",states, history, frame, sessionInstance, statesToCreate);
 
             dispatch({
                 type: AnnotationActionTypes.CREATE_ANNOTATIONS_SUCCESS,
@@ -1267,6 +1335,7 @@ export function createAnnotationsAsync(sessionInstance: any, frame: number, stat
                     history,
                 },
             });
+            dispatch(saveAnnotationsAsync(sessionInstance));
         } catch (error) {
             dispatch({
                 type: AnnotationActionTypes.CREATE_ANNOTATIONS_FAILED,
@@ -1427,6 +1496,7 @@ export function pasteShapeAsync(): ThunkAction {
     return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
         const {
             canvas: { instance: canvasInstance },
+            annotations: { activatedStateID, states },
             job: { instance: jobInstance },
             player: {
                 frame: { number: frameNumber },
@@ -1434,6 +1504,7 @@ export function pasteShapeAsync(): ThunkAction {
             drawing: { activeInitialState: initialState },
         } = getStore().getState().annotation;
 
+        console.log("paste shape",activatedStateID, initialState, jobInstance );
         if (initialState) {
             let activeControl = ActiveControl.CURSOR;
             if (initialState.shapeType === ShapeType.RECTANGLE) {
@@ -1457,15 +1528,23 @@ export function pasteShapeAsync(): ThunkAction {
             if (canvasInstance instanceof Canvas) {
                 canvasInstance.cancel();
             }
+           
+            
             if (initialState.objectType === ObjectType.TAG) {
                 const objectState = new cvat.classes.ObjectState({
                     objectType: ObjectType.TAG,
                     label: initialState.label,
                     attributes: initialState.attributes,
                     frame: frameNumber,
+                    // clientId: initialState.clientID,
+
                 });
+                console.log("New object Client Id in actions", objectState);
+                
                 dispatch(createAnnotationsAsync(jobInstance, frameNumber, [objectState]));
-            } else {
+            }
+            else {
+                console.log("False",initialState,canvasInstance);
                 canvasInstance.draw({
                     enabled: true,
                     initialState,
@@ -1487,6 +1566,7 @@ export function interactWithCanvas(activeInteractor: Model | OpenCVTool, activeL
 
 export function repeatDrawShapeAsync(): ThunkAction {
     return async (dispatch: ActionCreator<Dispatch>): Promise<void> => {
+        console.log("repeatDrawShapeAsync");
         const {
             canvas: { instance: canvasInstance },
             job: { labels, instance: jobInstance },
@@ -1558,6 +1638,7 @@ export function repeatDrawShapeAsync(): ThunkAction {
         } else if (canvasInstance) {
             canvasInstance.draw({
                 enabled: true,
+                // parentId: 2,
                 rectDrawingMethod: activeRectDrawingMethod,
                 cuboidDrawingMethod: activeCuboidDrawingMethod,
                 numberOfPoints: activeNumOfPoints,

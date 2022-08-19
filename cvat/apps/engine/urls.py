@@ -24,6 +24,7 @@ router.register('comments', views.CommentViewSet)
 router.register('restrictions', RestrictionsViewSet, basename='restrictions')
 router.register('cloudstorages', views.CloudStorageViewSet)
 router.register('cat',views.CatlogViewSet)
+router.register('get-track-ids',views.GetTrackIds ,basename='trackids')
 # router.register('im',views.CatViewSet)
 
 urlpatterns = [

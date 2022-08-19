@@ -63,6 +63,8 @@ export class EditHandlerImpl implements EditHandler {
     }
 
     private startEdit(): void {
+        console.log("startEdit invokedss");
+        
         // get started coordinates
         const [clientX, clientY] = translateFromSVG(
             (this.canvas.node as any) as SVGSVGElement,
@@ -89,6 +91,8 @@ export class EditHandlerImpl implements EditHandler {
         };
 
         this.canvas.on('mousemove.edit', (e: MouseEvent): void => {
+            console.log("mousemove.edit event",e);
+            
             if (e.shiftKey && ['polygon', 'polyline'].includes(this.editData.state.shapeType)) {
                 if (lastDrawnPoint.x === null || lastDrawnPoint.y === null) {
                     (this.editLine as any).draw('point', e);

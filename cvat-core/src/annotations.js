@@ -172,13 +172,14 @@
         return false;
     }
 
-    async function clearAnnotations(session, reload, startframe, endframe, delTrackKeyframesOnly) {
+    async function clearAnnotations(session, reload, startframe, endframe, delTrackKeyframesOnly, option) {
+        console.log("Clear Annotations", session, reload, startframe, endframe, delTrackKeyframesOnly, option);
         checkObjectType('reload', reload, 'boolean', null);
         const sessionType = session instanceof Task ? 'task' : 'job';
         const cache = getCache(sessionType);
 
         if (cache.has(session)) {
-            cache.get(session).collection.clear(startframe, endframe, delTrackKeyframesOnly);
+            cache.get(session).collection.clearLabelledAnnotations(startframe, endframe, delTrackKeyframesOnly, option);
         }
 
         if (reload) {
@@ -212,7 +213,7 @@
             'Collection has not been initialized yet. Call annotations.get() or annotations.clear(true) before',
         );
     }
-
+//select multiple object
     function selectObject(session, objectStates, x, y) {
         const sessionType = session instanceof Task ? 'task' : 'job';
         const cache = getCache(sessionType);

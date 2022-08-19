@@ -87,6 +87,8 @@ export function translateToSVG(svg: SVGSVGElement, points: number[]): number[] {
 }
 
 export function displayShapeSize(shapesContainer: SVG.Container, textContainer: SVG.Container): ShapeSizeElement {
+    console.log("displayShapeSize", shapesContainer,textContainer);
+    
     const shapeSize: ShapeSizeElement = {
         sizeElement: textContainer
             .text('')
